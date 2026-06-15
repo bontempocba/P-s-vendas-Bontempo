@@ -3,58 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pós-Vendas Bontempo - Central de Inteligência</title>
+    <title>Pós-Vendas - Central de Inteligência</title>
     <style>
         :root {
-            --primary: #0f172a; /* Azul Escuro Premium */
-            --accent: #1e293b;  /* Tom Sobrio Corporativo */
+            --primary: #0f172a; 
+            --accent: #1e293b;  
             --light: #f8fafc;
             --border: #e2e8f0;
             --dark: #0f172a;
-            
-            /* Cores Logísticas */
-            --delivery-color: #ea580c; /* Laranja Logística */
-            --assembly-color: #2563eb; /* Azul Técnico */
-            --assist-color: #ef4444;   /* Vermelho Assistência */
-            
-            /* Status */
+            --delivery-color: #ea580c; 
+            --assembly-color: #2563eb; 
+            --assist-color: #ef4444;   
             --success: #22c55e;
-            --warning: #eab308;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background-color: var(--light); color: var(--dark); display: flex; height: 100vh; overflow: hidden; }
 
-        /* MENU LATERAL CUSTOMIZADO BONTEMPO */
-        .sidebar { width: 280px; background: #ffffff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 25px 20px; justify-content: space-between; shrink: 0; }
-        
-        /* CONTAINER DA LOGOMARCA DEFINITIVA */
-        .logo-container { 
-            background: #ffffff; 
-            padding: 15px 10px; 
-            border-radius: 8px; 
-            text-align: center; 
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .logo-img { 
-            max-width: 100%; 
-            max-height: 65px; 
-            display: block; 
-            object-fit: contain;
-        }
+        /* TELA DE LOGIN */
+        .login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; }
 
-        .brand-title { font-size: 1.25rem; color: var(--primary); font-weight: 800; text-align: center; margin-top: 5px; letter-spacing: -0.5px; }
-        .brand-subtitle { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; text-align: center; display: block; margin-top: 2px; letter-spacing: 1px; }
+        /* SIDEBAR E ESTRUTURA */
+        .sidebar { width: 280px; background: #ffffff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 25px 20px; justify-content: space-between; shrink: 0; }
+        .logo-container { padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; min-height: 70px; }
+        .logo-img { max-width: 100%; max-height: 60px; display: block; object-fit: contain; }
+        .brand-title { font-size: 1.25rem; color: var(--primary); font-weight: 800; text-align: center; margin-top: 5px; }
+        .brand-subtitle { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; text-align: center; display: block; }
         
         .menu-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; margin-top: 25px; }
-        .menu-btn { display: flex; align-items: center; padding: 12px 15px; border: none; background: none; border-radius: 8px; color: #475569; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; text-align: left; }
+        .menu-btn { display: flex; align-items: center; padding: 12px 15px; border: none; background: none; border-radius: 8px; color: #475569; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; text-align: left; width: 100%; }
         .menu-btn.active, .menu-btn:hover { background: #f1f5f9; color: var(--primary); box-shadow: inset 4px 0 0 var(--primary); }
-        .btn-logout { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
+        .btn-logout { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; width: 100%; }
 
-        /* PAINEL PRINCIPAL */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .top-bar { background: white; padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; shrink: 0; }
         .page-title { font-weight: 800; font-size: 1.4rem; color: var(--primary); }
@@ -62,55 +43,48 @@
         .btn-action { padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: white; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .btn-blue { background: var(--primary); color: white; border: none; }
         .btn-blue:hover { background: #1e293b; }
+        .btn-green { background: #22c55e; color: white; border: none; }
+        .btn-red { background: #ef4444; color: white; border: none; }
 
-        /* VIEWS */
         .view-panel { flex: 1; padding: 30px; overflow-y: auto; display: none; }
         .view-panel.active { display: block; }
 
-        /* WIDGETS */
+        /* DASHBOARD ELEMENTOS */
         .dash-widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .widget-card { background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
         .widget-card span { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
         .widget-card h3 { font-size: 1.8rem; margin-top: 5px; font-weight: 800; }
 
-        /* FILTROS */
         .deep-filters { background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .deep-filters div { display: flex; flex-direction: column; gap: 5px; }
         .deep-filters label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
         .deep-filters select, .deep-filters input { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fafafa; }
 
-        /* ESTRUTURA DO CALENDÁRIO MENSAL INTEGRADO */
+        /* CALENDÁRIO */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 8px 8px 0 0; border: 1px solid var(--border); border-bottom: none; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--border); gap: 1px; border: 1px solid var(--border); border-radius: 0 0 8px 8px; overflow: hidden; }
         .calendar-day-name { background: #f1f5f9; padding: 10px; text-align: center; font-weight: 700; font-size: 0.8rem; color: #475569; text-transform: uppercase; }
-        .calendar-cell { background: white; min-height: 120px; padding: 10px; display: flex; flex-direction: column; gap: 5px; transition: 0.2s; }
-        .calendar-cell:hover { background: #f8fafc; }
-        .calendar-cell .day-number { font-weight: 800; font-size: 0.9rem; color: #94a3b8; margin-bottom: 5px; }
-        .calendar-cell.current-month .day-number { color: var(--dark); }
-        .calendar-cell.today { background: #eff6ff; }
-        .calendar-cell.today .day-number { color: #2563eb; background: #dbeafe; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+        .calendar-cell { background: white; min-height: 120px; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
+        .calendar-cell .day-number { font-weight: 800; font-size: 0.9rem; color: var(--dark); }
 
-        /* EVENTOS DENTRO DO CALENDÁRIO */
-        .cal-event { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
-        .event-delivery { background: var(--delivery-color); }
-        .event-assembly { background: var(--assembly-color); }
-        .event-assist { background: var(--assist-color); }
-
-        /* CARDS */
-        .system-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 15px; border: 1px solid var(--border); }
+        /* CARDS E ADAPTAÇÕES */
+        .system-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; }
         .card-meta-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
         .badge-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
         .badge-delivery { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
         .badge-tech { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
         .badge-assist { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
         .card-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
-        .card-detail { font-size: 0.85rem; color: #475569; margin-bottom: 6px; display: flex; justify-content: space-between; }
-        .card-obs { background: #f8fafc; border-left: 3px solid var(--border); padding: 8px; border-radius: 4px; font-size: 0.8rem; color: #64748b; font-style: italic; margin-top: 8px; }
+        .card-detail { font-size: 0.85rem; color: #475569; margin-bottom: 6px; }
+        .card-obs { background: #f8fafc; border-left: 3px solid var(--border); padding: 8px; border-radius: 4px; font-size: 0.8rem; color: #64748b; margin-top: 8px; }
+        
+        .ponto-controls { display: flex; gap: 10px; margin-top: 15px; border-top: 1px dashed var(--border); padding-top: 12px; }
+        .ponto-time { font-size: 0.75rem; font-weight: bold; color: #475569; margin-top: 5px; }
 
         /* TABELAS */
-        .data-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-        .data-table th { background: #f1f5f9; padding: 14px; font-weight: 700; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #475569; border-bottom: 2px solid var(--border); }
-        .data-table td { padding: 14px; font-size: 0.85rem; border-bottom: 1px solid var(--border); color: #334155; }
+        .data-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); border-radius: 8px; margin-top: 15px; }
+        .data-table th { background: #f1f5f9; padding: 12px; font-weight: 700; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #475569; }
+        .data-table td { padding: 12px; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
 
         /* MODAL */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15,23,42,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
@@ -120,46 +94,63 @@
         .form-group.full { grid-column: 1 / -1; }
         .form-group label { font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; }
         .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+        
+        .admin-only, .tech-only { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR CUSTOMIZADA BONTEMPO COM LOGO INTEGRADA -->
-    <div class="sidebar">
-        <div>
-            <!-- Logomarca Bontempo renderizada diretamente do arquivo fornecido -->
-            <div class="logo-container">
-                <img src="data:image/png;base64,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OjE4KzAwOjAwvXnAnAAAACB0RVYdHNvZnR3YXJlAGh0dHBzOi8vaW1hZ2VtYWdpY2sub3Jn7b95kwAAABR0RVYdDZXN0OlM3M0NfR0JSMjAyNl9idWe565HSAAAAGHRFWHRUaHVtYjo6RG9jdW1lbnQ6OlBhZ2VzADGn7gJDAAAAF3RFWHRUaHVtYjo6SW1hZ2U6OkhlaWdodAA0NTBO9LInAAAAFnRFWHRUaHVtYjo6SW1hZ2U6OldpZHRoADgwMHB6S0QAAAAZdEVYdFRodW1iOjpNaW1ldHlwZQBpbWFnZS9wbmc/M9gtAAAAF3RFWHRUaHVtYjo6TVRpbWUAMTcxODQ3MTQ3OPrM2j4AAAARdEVYdFRodW1iOjpTaXplADU2S0JCmR89ewAAAFp0RVYdVValidhdGUtZGF0ZS1odG1sLTIwMjYtMDYtMTVUMTc6MTE6MTgrMDA6MDBjRFFDAAAAE3RFWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAA8P3htcCBwYWNrZXQgYmVnaW49IiIsInB0bXAgYm9uY29tPSIwIj8+Cjx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkltYWdlOjpNYWdpY2siPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIgogICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2i5Y29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIgogICAgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjUuNCAoV2luZG93cykiCiAgICB4bXA6Q3JlYXRlRGF0ZT0iMjAyNi0wNi0xNVQxNzoxMToxOCswMDowMCIKICAgIHhtcDpNb2RpZnlEYXRlPSIyMDI2LTA2LTE1VDE3OjExOjE4KzAwOjAwIgogICAgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpFN0MzM0QxNzJCRDUxMUVFOTUwNkRCQTNGMEExNDlEMCIKICAgIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RTdDMzNEMTgyQkQ1MTFFRTk1MDZEQkEzRjBBMTE5RDAiPgogICA8eG1wTU06RGVyaXZlZEZyb20gcmRmOnBhcnNlVHlwZT0iUmVzb3VyY2UiPgogICAgPHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RTdDMzNEMTUyQkQ1MTFFRTk1MDZEQkEzRjBBMTQ5RDAiLz4KICAgIDxzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkU3QzMzRDE2MkJENTExRUU5NTA2REJBM0YwQTE0OUQwIi8+CiAgIDwveG1wTU06RGVyaXZlZEZyb20+CiAgPC9yZGY6RGV_Y3JpcHRpb24+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo8P3htcCBwYWNrZXQgZW5kPSJyIj8+D8uM2gAAAG10RVYdZXhpZjpQaG90b3Nob3A6SGlzdG9yeQB4bXAuYmRpZDpFN0MzM0QxNTJCRDUxMUVFOTUwNkRCQTNGMEExNDlEMF9fX3htcC5paWQ6RTdDMzNEMTcyQkQ1MTFFRTk1MDZEQkEzRjBBMTQ5RDAsMjd2YwAAABh0RVYdZXhpZjpQaG90b3Nob3A6SGlzdG9yeXQAae44uQAAAABJRU5ErkJggg==" class="logo-img" alt="Bontempo">
-            </div>
-            <div class="brand-title">Pós-Vendas Bontempo</div>
-            <div class="brand-subtitle">Central de Inteligência</div>
-            
-            <div class="menu-nav">
-                <button class="menu-btn active" id="nav-dashboard" onclick="switchTab('dashboard')">📊 Painel Geral</button>
-                <button class="menu-btn" id="nav-calendar-view" onclick="switchTab('calendar-view')">📅 Calendário Mensal</button>
-                <button class="menu-btn" id="nav-reports" onclick="switchTab('reports')">📜 Histórico & Relatórios</button>
+    <div class="login-screen" id="view-login">
+        <div class="login-box">
+            <h2 style="margin-bottom: 20px; font-weight: 800;">Acesso ao Sistema</h2>
+            <div style="display:flex; flex-direction:column; gap:15px; text-align:left;">
+                <div class="form-group">
+                    <label>Usuário</label>
+                    <input type="text" id="login-username" placeholder="Digite seu usuário">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="login-password" placeholder="Digite sua senha">
+                </div>
+                <button class="btn-action btn-blue" style="justify-content:center; padding:12px;" onclick="executarLogin()">Entrar no Sistema</button>
             </div>
         </div>
-        <button class="btn-logout" onclick="alert('Sessão encerrada')">Sair do Painel</button>
     </div>
 
-    <!-- CONTEÚDO OPERACIONAL -->
+    <div class="sidebar">
+        <div>
+            <div class="logo-container">
+                <img id="main-logo" src="https://i.postimg.co/N0gXpXm7/logo-posicionamento-fundo-branco.png" class="logo-img" alt="Logo">
+            </div>
+            <div class="brand-title" id="txt-brand-title">Pós-Vendas Bontempo</div>
+            <div class="brand-subtitle" id="txt-brand-subtitle">Central de Inteligência</div>
+            
+            <div class="menu-nav">
+                <button class="menu-btn active" id="nav-dashboard" onclick="switchTab('dashboard')">📊 Painel de Atendimentos</button>
+                <button class="menu-btn admin-only" id="nav-calendar-view" onclick="switchTab('calendar-view')">📅 Calendário Mensal</button>
+                <button class="menu-btn admin-only" id="nav-reports" onclick="switchTab('reports')">📜 Histórico & Relatórios</button>
+                <button class="menu-btn admin-only" id="nav-settings" onclick="switchTab('settings')">⚙️ Configurações</button>
+            </div>
+        </div>
+        <button class="btn-logout" onclick="executarLogout()">Sair do Painel</button>
+    </div>
+
     <div class="main-content">
         <div class="top-bar">
-            <div class="page-title" id="current-view-title">Painel Geral de Atividades</div>
-            <button class="btn-action btn-blue" onclick="openModal()">➕ Novo Lançamento Integrado</button>
+            <div class="page-title" id="current-view-title">Painel de Atividades</div>
+            <button class="btn-action btn-blue admin-only" onclick="openModal()">➕ Novo Lançamento Integrado</button>
+            <div id="user-display-badge" style="font-weight:bold; background:#e2e8f0; padding:6px 12px; border-radius:20px; font-size:0.85rem;"></div>
         </div>
 
-        <!-- ABA 1: PAINEL GERAL -->
         <div id="tab-dashboard" class="view-panel active">
-            <div class="dash-widgets">
+            <div class="dash-widgets admin-only">
                 <div class="widget-card" style="border-left: 4px solid var(--primary);"><span>Acompanhamentos</span><h3 id="w-entregas">0</h3></div>
                 <div class="widget-card" style="border-left: 4px solid var(--assist-color);"><span>Assistências Ativas</span><h3 id="w-assistencias">0</h3></div>
                 <div class="widget-card" style="border-left: 4px solid var(--success);"><span>Receita Alocada</span><h3 id="w-contratos">R$ 0,00</h3></div>
                 <div class="widget-card" style="border-left: 4px solid #6b21a8;"><span>Volume de Carga</span><h3 id="w-peso">0 kg</h3></div>
             </div>
 
-            <div class="deep-filters">
+            <div class="deep-filters admin-only">
                 <div><label>Buscar Cliente</label><input type="text" id="search-cliente" placeholder="Nome do cliente..." oninput="filtrarGeral()"></div>
                 <div><label>Filtrar por Técnico</label><input type="text" id="search-tecnico" placeholder="Nome do profissional..." oninput="filtrarGeral()"></div>
                 <div>
@@ -168,94 +159,283 @@
                 </div>
             </div>
 
-            <h3 style="margin-bottom:15px; font-weight:700;">Fila de Atendimento Rápido</h3>
+            <h3 style="margin-bottom:15px; font-weight:700;" id="list-title">Fila de Atendimento</h3>
             <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:20px;" id="target-cards-gerais"></div>
         </div>
 
-        <!-- ABA 2: CALENDÁRIO MENSAL DO MÊS TODO -->
         <div id="tab-calendar-view" class="view-panel">
             <div class="calendar-header">
-                <h3 id="calendar-month-year" style="font-weight:800; color:var(--primary);">Junho 2026</h3>
-                <div style="display:flex; gap:15px; font-size:0.8rem; font-weight:bold;">
-                    <span style="color:var(--delivery-color)">🚚 Entrega de Móveis</span>
-                    <span style="color:var(--assembly-color)">🪵 Montagem Padrão</span>
-                    <span style="color:var(--assist-color)">🛠️ Assistência</span>
-                </div>
+                <h3 style="font-weight:800; color:var(--primary);">Junho 2026</h3>
             </div>
             <div class="calendar-grid" id="target-calendar-grid"></div>
         </div>
 
-        <!-- ABA 3: HISTÓRICO COMPLETO -->
         <div id="tab-reports" class="view-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 style="font-weight:700;">Painel Amplo de Auditoria de Ponto</h3>
+                <button class="btn-action btn-green" onclick="exportarDadosCSV()">📥 Exportar Relatório de Ponto (CSV)</button>
+            </div>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Cliente</th>
-                        <th>Endereço</th>
+                        <th>Cliente / Obra</th>
                         <th>Tipo</th>
-                        <th>Data Entrega</th>
-                        <th>Data Execução</th>
-                        <th>Profissional</th>
-                        <th>Contrato</th>
-                        <th>Status</th>
+                        <th>Técnico Escalado</th>
+                        <th>Entrada Registrada</th>
+                        <th>Saída Registrada</th>
+                        <th>Status Atual</th>
                     </tr>
                 </thead>
                 <tbody id="target-tabela-relatorios"></tbody>
             </table>
         </div>
+
+        <div id="tab-settings" class="view-panel">
+            <div style="display:flex; flex-direction:column; gap:30px;">
+                
+                <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
+                    <h3 style="margin-bottom: 15px; font-weight: 800;">Customização Visual do Site</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>URL da Logomarca</label><input type="text" id="cfg-logo-url"></div>
+                        <div class="form-group"><label>Título Principal</label><input type="text" id="cfg-title"></div>
+                        <div class="form-group"><label>Subtítulo</label><input type="text" id="cfg-subtitle"></div>
+                        <div class="form-group"><label>Cor Tema do Painel</label><input type="color" id="cfg-color" style="height:40px;"></div>
+                    </div>
+                    <button class="btn-action btn-blue" style="margin-top:15px;" onclick="salvarConfiguracoesLayout()">Salvar Layout</button>
+                </div>
+
+                <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
+                    <h3 style="margin-bottom: 5px; font-weight: 800;">Cadastro e Controle de Técnicos</h3>
+                    <p style="font-size:0.85rem; color:#64748b; margin-bottom:15px;">Insira novos funcionários ou remova acessos antigos instantaneamente.</p>
+                    
+                    <div class="form-grid" style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid var(--border); margin-bottom:20px;">
+                        <div class="form-group"><label>Nome do Técnico</label><input type="text" id="new-tech-name" placeholder="Ex: Rodrigo Souza"></div>
+                        <div class="form-group"><label>Usuário de Login</label><input type="text" id="new-tech-user" placeholder="Ex: rodrigo"></div>
+                        <div class="form-group"><label>Senha de Acesso</label><input type="password" id="new-tech-pass" placeholder="Defina a senha"></div>
+                        <div class="form-group" style="justify-content:flex-end;"><button class="btn-action btn-blue" style="height:42px; justify-content:center;" onclick="adicionarNovoTecnico()">＋ Adicionar Técnico</button></div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome Profissional</th>
+                                <th>Usuário</th>
+                                <th>Senha</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="target-lista-tecnicos-config"></tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
     </div>
 
-    <!-- MODAL DE REGISTRO COM DATAS DO MÊS -->
     <div class="modal" id="modal-sistema">
         <div class="modal-content">
-            <h3 style="font-weight:800; color:var(--dark); margin-bottom:10px;">Agendar Atendimento - Pós Vendas Bontempo</h3>
+            <h3 style="font-weight:800; margin-bottom:15px;">Criar Nova Ordem de Serviço</h3>
             <form id="form-solucao" onsubmit="salvarFormulario(event)">
                 <div class="form-grid">
                     <div class="form-group full"><label>Nome do Cliente</label><input type="text" id="f-cliente" required></div>
-                    <div class="form-group full"><label>Endereço Completo</label><input type="text" id="f-endereco" required></div>
-                    
-                    <div class="form-group full">
-                        <label>Tipo de Operação</label>
-                        <select id="f-tipo" required><option value="Montagem">Montagem Padrão de Obra</option><option value="Assistência">Assistência Técnica / Ajuste</option></select>
-                    </div>
-
-                    <!-- DATAS COMPLETAS DO MÊS -->
+                    <div class="form-group full"><label>Endereço</label><input type="text" id="f-endereco" required></div>
                     <div class="form-group">
-                        <label>🚚 Data de Entrega dos Móveis</label>
-                        <input type="date" id="f-data-entrega" required>
+                        <label>Operação</label>
+                        <select id="f-tipo"><option value="Montagem">Montagem Padrão</option><option value="Assistência">Assistência Técnica</option></select>
                     </div>
-                    <div class="form-group">
-                        <label>🪵 Data do Trabalho Técnico</label>
-                        <input type="date" id="f-data-montagem" required>
-                    </div>
-
-                    <div class="form-group"><label>Técnico / Montador</label><input type="text" id="f-tecnico" placeholder="Ex: Danilo" required></div>
-                    <div class="form-group"><label>Status</label>
-                        <select id="f-status"><option value="Agendado">Agendado</option><option value="Em rota">Em rota</option><option value="Em montagem">Em execução</option><option value="Concluído">Concluído</option></select>
-                    </div>
-                    
+                    <div class="form-group"><label>Técnico Designado</label><select id="f-tecnico" required></select></div>
+                    <div class="form-group"><label>Data Entrega Carga</label><input type="date" id="f-data-entrega" required></div>
+                    <div class="form-group"><label>Data Execução Serviço</label><input type="date" id="f-data-montagem" required></div>
                     <div class="form-group"><label>Valor Contrato (R$)</label><input type="number" id="f-valor" step="0.01" value="0.00"></div>
-                    <div class="form-group"><label>Peso Cubagem (kg)</label><input type="number" id="f-peso" value="0"></div>
-                    
-                    <div class="form-group full"><label>Especificação Técnica / Detalhes</label><textarea id="f-servico" rows="3" required placeholder="Descreva os detalhes dos móveis ou peças da assistência..."></textarea></div>
+                    <div class="form-group"><label>Cubagem Carga (kg)</label><input type="number" id="f-peso" value="0"></div>
+                    <div class="form-group full"><label>Detalhamento Técnico das Atividades</label><textarea id="f-servico" rows="3" required></textarea></div>
                 </div>
                 <div style="margin-top:25px; display:flex; gap:12px;">
                     <button type="button" class="btn-action" style="flex:1; justify-content:center;" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-action btn-blue" style="flex:1; justify-content:center;">Gravar na Agenda</button>
+                    <button type="submit" class="btn-action btn-blue" style="flex:1; justify-content:center;">Agendar Serviço</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const ANO_ATUAL = 2026;
-        const MES_ATUAL = 5; // Junho
+        let currentUser = null;
 
-        let database = JSON.parse(localStorage.getItem('bontempo_db_v6')) || [
-            { id: 1, cliente: "Gregório Ballarotti", endereco: "Al. Calêndula, Qd 4", tipo: "Montagem", dataEntrega: "2026-06-01", dataMontagem: "2026-06-02", tecnico: "Danilo", valor: 12500, peso: 420, servico: "Instalação civil de marcenaria de alto padrão.", status: "Agendado" },
-            { id: 2, cliente: "Fabricio Fleury", endereco: "Edifício Authentic, Apto 1402", tipo: "Montagem", dataEntrega: "2026-06-08", dataMontagem: "2026-06-09", tecnico: "Matheus", valor: 24500, peso: 680, servico: "Montagem completa da Cozinha Gourmet.", status: "Em montagem" },
-            { id: 3, cliente: "Tamara Segala", endereco: "Fazenda Pouso Alegre", tipo: "Assistência", dataEntrega: "2026-06-15", dataMontagem: "2026-06-15", tecnico: "Danilo", valor: 0, peso: 15, servico: "Assistência: Ajuste fino de portas e alinhamento de frentes.", status: "Agendado" }
+        let listaTecnicos = JSON.parse(localStorage.getItem('bontempo_tecnicos')) || [
+            { nome: "Danilo", user: "danilo", pass: "123" },
+            { nome: "Matheus", user: "matheus", pass: "123" }
         ];
+
+        let database = JSON.parse(localStorage.getItem('bontempo_db_v7')) || [
+            { id: 1, cliente: "Gregório Ballarotti", endereco: "Al. Calêndula, Qd 4", tipo: "Montagem", dataEntrega: "2026-06-01", dataMontagem: "2026-06-02", tecnico: "Danilo", valor: 12500, peso: 420, servico: "Instalação civil de marcenaria de alto padrão.", status: "Agendado", pontoEntrada: "", pontoSaida: "" },
+            { id: 2, cliente: "Fabricio Fleury", endereco: "Edifício Authentic, Apto 1402", tipo: "Montagem", dataEntrega: "2026-06-08", dataMontagem: "2026-06-09", tecnico: "Matheus", valor: 24500, peso: 680, servico: "Montagem completa da Cozinha Gourmet.", status: "Em execução", pontoEntrada: "08:15", pontoSaida: "" },
+            { id: 3, cliente: "Tamara Segala", endereco: "Fazenda Pouso Alegre", tipo: "Assistência", dataEntrega: "2026-06-15", dataMontagem: "2026-06-15", tecnico: "Danilo", valor: 0, peso: 15, servico: "Assistência: Ajuste fino de portas e alinhamento de frentes.", status: "Agendado", pontoEntrada: "", pontoSaida: "" }
+        ];
+
+        let configSystem = JSON.parse(localStorage.getItem('bontempo_config')) || {
+            logoUrl: "https://i.postimg.co/N0gXpXm7/logo-posicionamento-fundo-branco.png",
+            title: "Pós-Vendas Bontempo",
+            subtitle: "Central de Inteligência",
+            primaryColor: "#0f172a"
+        };
+
+        function executarLogin() {
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value;
+
+            if (u === 'admin' && p === '123') {
+                currentUser = { tipo: 'admin', nome: 'Administrador' };
+            } else {
+                const encontrou = listaTecnicos.find(t => t.user === u && t.pass === p);
+                if (encontrou) {
+                    currentUser = { tipo: 'tecnico', nome: encontrou.nome };
+                }
+            }
+
+            if (currentUser) {
+                document.getElementById('view-login').style.display = 'none';
+                ajustarPermissoesTela();
+                switchTab('dashboard');
+            } else {
+                alert("Usuário ou senha incorretos!");
+            }
+        }
+
+        function executarLogout() {
+            currentUser = null;
+            document.getElementById('view-login').style.display = 'flex';
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+        }
+
+        function ajustarPermissoesTela() {
+            document.getElementById('user-display-badge').innerText = `Logado como: ${currentUser.nome}`;
+            
+            if (currentUser.tipo === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+                document.getElementById('list-title').innerText = "Fila de Atendimento Geral";
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                document.getElementById('list-title').innerText = `Meus Atendimentos Agendados - ${currentUser.nome}`;
+            }
+        }
+
+        function renderConfigTecnicos() {
+            const tbody = document.getElementById('target-lista-tecnicos-config');
+            tbody.innerHTML = '';
+            listaTecnicos.forEach((t, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${t.nome}</b></td>
+                        <td><code>${t.user}</code></td>
+                        <td>••••••</td>
+                        <td><button class="btn-action btn-red" style="padding:4px 10px; font-size:0.75rem;" onclick="removerTecnico(${index})">Remover</button></td>
+                    </tr>
+                `;
+            });
+
+            const select = document.getElementById('f-tecnico');
+            select.innerHTML = '';
+            listaTecnicos.forEach(t => {
+                select.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
+            });
+        }
+
+        function adicionarNovoTecnico() {
+            const nome = document.getElementById('new-tech-name').value.trim();
+            const user = document.getElementById('new-tech-user').value.trim();
+            const pass = document.getElementById('new-tech-pass').value;
+
+            if(!nome || !user || !pass) return alert("Preencha todos os campos do técnico!");
+
+            listaTecnicos.push({ nome, user, pass });
+            localStorage.setItem('bontempo_tecnicos', JSON.stringify(listaTecnicos));
+            
+            document.getElementById('new-tech-name').value = '';
+            document.getElementById('new-tech-user').value = '';
+            document.getElementById('new-tech-pass').value = '';
+            
+            renderConfigTecnicos();
+            alert(`Técnico ${nome} cadastrado com sucesso!`);
+        }
+
+        function removerTecnico(index) {
+            if(confirm(`Tem certeza que deseja remover o acesso de ${listaTecnicos[index].nome}?`)) {
+                listaTecnicos.splice(index, 1);
+                localStorage.setItem('bontempo_tecnicos', JSON.stringify(listaTecnicos));
+                renderConfigTecnicos();
+            }
+        }
+
+        function registrarPonto(id, tipoPonto) {
+            const servico = database.find(i => i.id === id);
+            const agora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+            
+            if(tipoPonto === 'entrada') {
+                servico.pontoEntrada = agora;
+                servico.status = "Em execução";
+            } else {
+                servico.pontoSaida = agora;
+                servico.status = "Concluído";
+            }
+            
+            localStorage.setItem('bontempo_db_v7', JSON.stringify(database));
+            filtrarGeral();
+        }
+
+        function filtrarGeral() {
+            const container = document.getElementById('target-cards-gerais');
+            container.innerHTML = '';
+
+            let dadosFiltrados = database;
+
+            if (currentUser.tipo === 'tecnico') {
+                dadosFiltrados = database.filter(item => item.tecnico.toLowerCase() === currentUser.nome.toLowerCase());
+            } else {
+                const cFilter = document.getElementById('search-cliente').value.toLowerCase();
+                const tFilter = document.getElementById('search-tecnico').value.toLowerCase();
+                const typeFilter = document.getElementById('search-tipo').value;
+
+                dadosFiltrados = database.filter(item => {
+                    return (item.cliente.toLowerCase().includes(cFilter)) &&
+                           (item.tecnico.toLowerCase().includes(tFilter)) &&
+                           (typeFilter === "" || item.tipo === typeFilter);
+                });
+
+                document.getElementById('w-entregas').innerText = database.length;
+                document.getElementById('w-assistencias').innerText = database.filter(i => i.tipo === "Assistência").length;
+                document.getElementById('w-contratos').innerText = "R$ " + database.reduce((acc, curr) => acc + curr.valor, 0).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                document.getElementById('w-peso').innerText = database.reduce((acc, curr) => acc + curr.peso, 0) + " kg";
+            }
+
+            dadosFiltrados.forEach(item => {
+                const badgeTipo = item.tipo === "Assistência" ? `<span class="badge-tag badge-assist">🛠️ ASSISTÊNCIA</span>` : `<span class="badge-tag badge-tech">🪵 MONTAGEM</span>`;
+                
+                let botoesPonto = '';
+                if(currentUser.tipo === 'tecnico') {
+                    botoesPonto = `
+                        <div class="ponto-controls">
+                            <button class="btn-action btn-green" style="padding:6px 10px; font-size:0.75rem;" ${item.pontoEntrada ? 'disabled style="opacity:0.5"' : ''} onclick="registrarPonto(${item.id}, 'entrada')">▶ Registrar Entrada</button>
+                            <button class="btn-action btn-red" style="padding:6px 10px; font-size:0.75rem;" ${!item.pontoEntrada || item.pontoSaida ? 'disabled style="opacity:0.5"' : ''} onclick="registrarPonto(${item.id}, 'saída')">■ Registrar Saída</button>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="system-card" style="border-top: 4px solid ${item.tipo === 'Assistência' ? 'var(--assist-color)' : 'var(--primary)'}">
+                        <div class="card-meta-line">${badgeTipo} <span class="badge-tag badge-delivery">🚚 Carga: ${item.dataEntrega.split('-').reverse().slice(0,2).join('/')}</span></div>
+                        <div class="card-title">${item.cliente}</div>
+                        <div class="card-detail">📍 Local: <b>${item.endereco}</b></div>
+                        <div class="card-detail">👤 Técnico: <b>${item.tecnico}</b></div>
+                        <div class="card-obs"><b>Serviço:</b> ${item.servico}</div>
+                        <div class="ponto-time">
+                            ⏱ Entrada: ${item.pontoEntrada || '---'} | Saída: ${item.pontoSaida || '---'}
+                        </div>
+                        ${botoesPonto}
+                    </div>
+                `;
+            });
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
@@ -264,79 +444,20 @@
             document.getElementById(`tab-${tabId}`).classList.add('active');
             document.getElementById(`nav-${tabId}`).classList.add('active');
 
-            const titles = { dashboard: "Painel Geral de Atividades", "calendar-view": "📅 Calendário Mensal Prontuário", reports: "📜 Histórico de Lançamentos" };
-            document.getElementById('current-view-title').innerText = titles[tabId];
-
             if(tabId === 'dashboard') filtrarGeral();
             if(tabId === 'calendar-view') renderCalendarioMensal();
             if(tabId === 'reports') renderRelatorios();
-        }
-
-        function filtrarGeral() {
-            const cFilter = document.getElementById('search-cliente').value.toLowerCase();
-            const tFilter = document.getElementById('search-tecnico').value.toLowerCase();
-            const typeFilter = document.getElementById('search-tipo').value;
-
-            const filtrados = database.filter(item => {
-                return (item.cliente.toLowerCase().includes(cFilter)) &&
-                       (item.tecnico.toLowerCase().includes(tFilter)) &&
-                       (typeFilter === "" || item.tipo === typeFilter);
-            });
-
-            document.getElementById('w-entregas').innerText = database.length;
-            document.getElementById('w-assistencias').innerText = database.filter(i => i.tipo === "Assistência").length;
-            document.getElementById('w-contratos').innerText = "R$ " + database.reduce((acc, curr) => acc + curr.valor, 0).toLocaleString('pt-BR', {minimumFractionDigits: 2});
-            document.getElementById('w-peso').innerText = database.reduce((acc, curr) => acc + curr.peso, 0) + " kg";
-
-            const container = document.getElementById('target-cards-gerais');
-            container.innerHTML = '';
-            filtrados.forEach(item => {
-                const badgeTipo = item.tipo === "Assistência" ? `<span class="badge-tag badge-assist">🛠️ ASSISTÊNCIA</span>` : `<span class="badge-tag badge-tech">🪵 MONTAGEM</span>`;
-                container.innerHTML += `
-                    <div class="system-card" style="border-top: 4px solid ${item.tipo === 'Assistência' ? 'var(--assist-color)' : 'var(--primary)'}">
-                        <div class="card-meta-line">${badgeTipo} <span class="badge-tag badge-delivery">🚚 Carga: ${item.dataEntrega.split('-').reverse().slice(0,2).join('/')}</span></div>
-                        <div class="card-title">${item.cliente}</div>
-                        <div class="card-detail">Local: <b>${item.endereco}</b></div>
-                        <div class="card-detail">Técnico: <b>${item.tecnico}</b></div>
-                        <div class="card-obs"><b>Detalhamento:</b> ${item.servico}</div>
-                    </div>
-                `;
-            });
+            if(tabId === 'settings') renderConfigLayoutInputs();
         }
 
         function renderCalendarioMensal() {
-            const grid = document.getElementById('target-calendar-grid');
-            grid.innerHTML = '';
-
+            const grid = document.getElementById('target-calendar-grid'); grid.innerHTML = '';
             const nomesDias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             nomesDias.forEach(d => grid.innerHTML += `<div class="calendar-day-name">${d}</div>`);
+            for (let i = 0; i < 2; i++) grid.innerHTML += `<div class="calendar-cell"></div>`; 
 
-            const primeiroDiaMês = new Date(ANO_ATUAL, MES_ATUAL, 1).getDay();
-            const totalDiasMês = new Date(ANO_ATUAL, MES_ATUAL + 1, 0).getDate();
-
-            for (let i = 0; i < primeiroDiaMês; i++) {
-                grid.innerHTML += `<div class="calendar-cell"></div>`;
-            }
-
-            for (let dia = 1; dia <= totalDiasMês; dia++) {
-                const diaStr = `${ANO_ATUAL}-${String(MES_ATUAL + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-                
-                let celulaHtml = `<div class="calendar-cell current-month">
-                                    <div class="day-number">${dia}</div>`;
-
-                database.forEach(item => {
-                    if(item.dataEntrega === diaStr) {
-                        celulaHtml += `<div class="cal-event event-delivery" onclick="alert('${item.cliente}: Entrega programada')">🚚 ${item.cliente}</div>`;
-                    }
-                    if(item.dataMontagem === diaStr) {
-                        const classeCor = item.tipo === 'Assistência' ? 'event-assist' : 'event-assembly';
-                        const prefixo = item.tipo === 'Assistência' ? '🛠️' : '🪵';
-                        celulaHtml += `<div class="cal-event ${classeCor}" onclick="alert('${item.cliente}: Operação técnica')">${prefixo} ${item.cliente}</div>`;
-                    }
-                });
-
-                celulaHtml += `</div>`;
-                grid.innerHTML += celulaHtml;
+            for (let dia = 1; dia <= 30; dia++) {
+                grid.innerHTML += `<div class="calendar-cell"><div class="day-number">${dia}</div></div>`;
             }
         }
 
@@ -347,16 +468,59 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${item.cliente}</b></td>
-                        <td>${item.endereco}</td>
                         <td>${item.tipo}</td>
-                        <td>${item.dataEntrega.split('-').reverse().join('/')}</td>
-                        <td>${item.dataMontagem.split('-').reverse().join('/')}</td>
                         <td><b>${item.tecnico}</b></td>
-                        <td>R$ ${item.valor.toLocaleString('pt-BR')}</td>
-                        <td><mark style="background:#e0f2fe; padding:2px 6px; border-radius:4px;">${item.status}</mark></td>
+                        <td><mark style="background:#e0f2fe; color:#0369a1; padding:4px 8px; border-radius:4px; font-weight:bold;">${item.pontoEntrada || '⚠️ Não iniciou'}</mark></td>
+                        <td><mark style="background:#fee2e2; color:#b91c1c; padding:4px 8px; border-radius:4px; font-weight:bold;">${item.pontoSaida || '⏳ Em andamento'}</mark></td>
+                        <td><b>${item.status}</b></td>
                     </tr>
                 `;
             });
+        }
+
+        // FUNÇÃO DE EXPORTAÇÃO CSV (PLANILHA COMPLETA)
+        function exportarDadosCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "Cliente;Tipo de OS;Tecnico;Entrada;Saida;Status\n";
+            
+            database.forEach(item => {
+                let linha = `"${item.cliente}";"${item.tipo}";"${item.tecnico}";"${item.pontoEntrada || 'Não bateu'}";"${item.pontoSaida || 'Não bateu'}";"${item.status}"\n`;
+                csvContent += linha;
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Relatorio_Geral_de_Ponto_PosVendas.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function applyConfigs() {
+            document.getElementById('main-logo').src = configSystem.logoUrl;
+            document.getElementById('txt-brand-title').innerText = configSystem.title;
+            document.getElementById('txt-brand-subtitle').innerText = configSystem.subtitle;
+            document.documentElement.style.setProperty('--primary', configSystem.primaryColor);
+        }
+
+        function renderConfigLayoutInputs() {
+            document.getElementById('cfg-logo-url').value = configSystem.logoUrl;
+            document.getElementById('cfg-title').value = configSystem.title;
+            document.getElementById('cfg-subtitle').value = configSystem.subtitle;
+            document.getElementById('cfg-color').value = configSystem.primaryColor;
+            renderConfigTecnicos();
+        }
+
+        function salvarConfiguracoesLayout() {
+            configSystem.logoUrl = document.getElementById('cfg-logo-url').value;
+            configSystem.title = document.getElementById('cfg-title').value;
+            configSystem.subtitle = document.getElementById('cfg-subtitle').value;
+            configSystem.primaryColor = document.getElementById('cfg-color').value;
+            
+            localStorage.setItem('bontempo_config', JSON.stringify(configSystem));
+            applyConfigs();
+            alert("Layout modificado com sucesso!");
         }
 
         function openModal() { document.getElementById('modal-sistema').style.display = 'flex'; }
@@ -372,19 +536,20 @@
                 dataEntrega: document.getElementById('f-data-entrega').value,
                 dataMontagem: document.getElementById('f-data-montagem').value,
                 tecnico: document.getElementById('f-tecnico').value,
-                status: document.getElementById('f-status').value,
                 valor: parseFloat(document.getElementById('f-valor').value) || 0,
                 peso: parseInt(document.getElementById('f-peso').value) || 0,
-                servico: document.getElementById('f-servico').value
+                servico: document.getElementById('f-servico').value,
+                status: "Agendado", pontoEntrada: "", pontoSaida: ""
             };
             database.push(novo);
-            localStorage.setItem('bontempo_db_v6', JSON.stringify(database));
+            localStorage.setItem('bontempo_db_v7', JSON.stringify(database));
             document.getElementById('form-solucao').reset();
             closeModal();
             filtrarGeral();
         }
 
-        filtrarGeral();
+        applyConfigs();
+        renderConfigTecnicos();
     </script>
 </body>
 </html>
