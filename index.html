@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,228 +6,260 @@
     <title>SOLUÇÃO - Central de Inteligência Operacional</title>
     <style>
         :root {
-            --primary: #0f172a;
+            --primary: #0070f3;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --border: #cbd5e1;
+            
+            /* Cores de Destaque Logístico */
             --accent: #2563eb;
             --accent-hover: #1d4ed8;
-            --bg-main: #f8fafc;
             --sidebar-bg: #ffffff;
             --card-bg: #ffffff;
-            --border: #e2e8f0;
             --text-main: #334155;
             
-            /* Status */
-            --st-alerta: #fef2f2; --txt-alerta: #991b1b;
-            --st-andamento: #fffbeb; --txt-andamento: #92400e;
-            --st-concluido: #f0fdf4; --txt-concluido: #166534;
+            /* Status e Alertas */
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --info: #3b82f6;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        body { background-color: var(--light); color: var(--dark); display: flex; height: 100vh; overflow: hidden; padding-bottom: 0; }
 
-        /* TELA DE LOGIN */
-        .login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center; }
-        .login-box h2 { color: var(--accent); margin-bottom: 20px; font-weight: 800; }
-        .login-form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
-        .login-form input { padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
-
-        /* MENU LATERAL */
+        /* MENU LATERAL ESTILIZADO */
         .sidebar { width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 25px 20px; justify-content: space-between; shrink: 0; }
-        .logo-area { margin-bottom: 30px; }
-        .logo-area h2 { font-size: 1.4rem; color: var(--primary); font-weight: 800; }
-        .logo-area span { font-size: 0.75rem; color: var(--accent); font-weight: bold; text-transform: uppercase; }
+        .logo-area { margin-bottom: 30px; text-align: center; }
+        .logo-area h2 { font-size: 1.6rem; color: var(--primary); font-weight: 800; letter-spacing: -1px; }
+        .logo-area span { font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase; }
         
-        .menu-nav { display: flex; flex-direction: column; gap: 6px; flex: 1; }
-        .menu-btn { display: flex; align-items: center; padding: 12px 15px; border: none; background: none; border-radius: 8px; color: #64748b; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
-        .menu-btn.active, .menu-btn:hover { background: #f1f5f9; color: var(--accent); }
-        .btn-logout { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
+        .menu-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .menu-btn { display: flex; align-items: center; padding: 12px 15px; border: none; background: none; border-radius: 8px; color: #475569; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; text-align: left; }
+        .menu-btn.active, .menu-btn:hover { background: #f1f5f9; color: var(--primary); box-shadow: inset 4px 0 0 var(--primary); }
+        .btn-logout { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 20px; }
 
         /* PAINEL PRINCIPAL */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .top-bar { background: white; padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; shrink: 0; }
-        .page-title { font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+        .page-title { font-weight: 800; font-size: 1.4rem; color: var(--dark); }
         
-        .btn-action { padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: white; transition: 0.2s; }
-        .btn-blue { background: var(--accent); color: white; border: none; }
-        .btn-blue:hover { background: var(--accent-hover); }
+        .btn-action { padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: white; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-blue { background: var(--primary); color: white; border: none; }
+        .btn-blue:hover { background: #0056b3; }
 
-        /* VIEWS */
+        /* ABAS / VIEWS */
         .view-panel { flex: 1; padding: 30px; overflow-y: auto; display: none; }
         .view-panel.active { display: block; }
 
-        /* ALERTA: CRÍTICO SEM TÉCNICO */
-        .alert-section { background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 20px; margin-bottom: 25px; }
-        .alert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
-
-        /* WIDGETS */
-        .dash-widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        /* METRICAS / WIDGETS */
+        .dash-widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
         .widget-card { background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .widget-card span { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-        .widget-card h3 { font-size: 1.6rem; margin-top: 5px; color: var(--primary); font-weight: 800; }
+        .widget-card h3 { font-size: 1.8rem; margin-top: 5px; color: var(--dark); font-weight: 800; }
 
-        /* FILTROS CRUZADOS */
+        /* FILTROS DE PESQUISA */
         .deep-filters { background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .deep-filters div { display: flex; flex-direction: column; gap: 5px; }
         .deep-filters label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
         .deep-filters select, .deep-filters input { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fafafa; }
 
-        /* KANBAN GRID */
-        .kanban-grid { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 15px; }
-        .kanban-column { background: #f1f5f9; border-radius: 10px; padding: 15px; min-width: 300px; width: 300px; min-height: 450px; border: 1px solid #e2e8f0; }
-        .column-header { text-align: center; padding: 10px; background: white; border-radius: 6px; font-weight: 800; font-size: 0.85rem; margin-bottom: 15px; border-bottom: 3px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        /* CRONOGRAMA EM COLUNAS (KANBAN OPERACIONAL) */
+        .kanban-grid { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 15px; align-items: flex-start; }
+        .kanban-column { background: #f1f5f9; border-radius: 10px; padding: 15px; min-width: 310px; width: 310px; min-height: 500px; border: 1px solid #e2e8f0; }
+        .column-header { text-align: center; padding: 12px; background: white; border-radius: 6px; font-weight: 800; font-size: 0.85rem; margin-bottom: 15px; border-bottom: 3px solid var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.05); text-transform: uppercase; }
 
-        /* CARDS */
-        .system-card { background: var(--card-bg); border-radius: 8px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        .card-meta-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
-        .region-badge { background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; }
-        .supervisor-badge { background: #f3e8ff; color: #6b21a8; padding: 2px 6px; border-radius: 4px; }
-        .delivery-badge { background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; }
+        /* CARDS DE CLIENTES */
+        .system-card { background: var(--card-bg); border-radius: 8px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); transition: transform 0.2s; }
+        .system-card:hover { transform: translateY(-2px); }
+        .card-meta-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; gap: 5px; }
+        .badge-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; text-align: center; }
+        .badge-delivery { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .badge-tech { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+        .badge-assist { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
         
-        .card-title { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
-        .card-detail { font-size: 0.82rem; color: #475569; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .card-desc-box { background: #f8fafc; padding: 8px; border-radius: 6px; font-size: 0.8rem; color: #64748b; margin-top: 8px; border-left: 3px solid #cbd5e1; }
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+        .card-detail { font-size: 0.85rem; color: #475569; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .card-detail b { color: var(--dark); }
+        .card-obs { background: #f8fafc; border-left: 3px solid var(--border); padding: 8px; border-radius: 4px; font-size: 0.8rem; color: #64748b; font-style: italic; margin-top: 8px; }
 
-        /* TABELA */
+        /* TABELAS */
         .data-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         .data-table th { background: #f1f5f9; padding: 14px; font-weight: 700; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #475569; border-bottom: 2px solid var(--border); }
         .data-table td { padding: 14px; font-size: 0.85rem; border-bottom: 1px solid var(--border); color: #334155; }
 
-        /* MODAL */
+        /* MODAL DE CADASTRO */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15,23,42,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group.full { grid-column: 1 / -1; }
         .form-group label { font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; }
         .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
-
-        /* TECH MOBILE */
-        .tech-container { display: none; flex-direction: column; gap: 15px; width: 100%; max-width: 600px; margin: 0 auto; padding: 15px; }
-        .tech-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
-    <div class="login-screen" id="login-screen-block">
-        <div class="login-box">
-            <h2>SISTEMA SOLUÇÃO</h2>
-            <p>Acesso Gerencial & Logística</p>
-            <form class="login-form" onsubmit="processarLogin(event)">
-                <input type="password" id="login-password" placeholder="Digite sua senha" style="text-align:center;" required>
-                <div id="login-error" style="color:red; font-size:0.8rem; font-weight:bold; display:none; text-align:center;">Credencial Inválida!</div>
-                <button type="submit" class="btn-action btn-blue" style="width:100%; padding:12px;">Entrar na Plataforma</button>
-            </form>
-            <div style="margin-top:15px; font-size:0.75rem; color:#64748b;">Gestão: admin123 | Técnico: tech123</div>
-        </div>
-    </div>
-
-    <div class="sidebar" id="app-sidebar" style="display:none;">
+    <!-- SIDEBAR DA SOLUÇÃO -->
+    <div class="sidebar">
         <div class="logo-area">
             <h2>SOLUÇÃO</h2>
-            <span>Business Intelligence</span>
+            <span>Pós-Montagem & Serviços</span>
         </div>
         <div class="menu-nav">
-            <button class="menu-btn active" id="nav-bi" onclick="switchTab('bi')">📊 Painel Gerencial</button>
+            <button class="menu-btn active" id="nav-dashboard" onclick="switchTab('dashboard')">📊 Painel Geral de Atividades</button>
             <button class="menu-btn" id="nav-deliveries" onclick="switchTab('deliveries')">🚚 Cronograma de Entregas</button>
-            <button class="menu-btn" id="nav-k" onclick="switchTab('kanban')">🗓️ Cronograma Semanal (Montagem)</button>
-            <button class="menu-btn" id="nav-r" onclick="switchTab('relatorios')">🔍 Filtro Avançado & OS</button>
+            <button class="menu-btn" id="nav-assembly" onclick="switchTab('assembly')">🪵 Escala de Montagem & Assistência</button>
+            <button class="menu-btn" id="nav-reports" onclick="switchTab('reports')">📜 Histórico & Relatórios</button>
         </div>
-        <button class="btn-logout" onclick="fazerLogout()">Desconectar</button>
+        <button class="btn-logout" onclick="alert('Logout simulado')">Sair do Painel</button>
     </div>
 
-    <div class="main-content" id="app-main-content" style="display:none;">
+    <!-- CONTEÚDO OPERACIONAL -->
+    <div class="main-content">
         <div class="top-bar">
-            <div class="page-title">Painel de Controle de Operações</div>
-            <button class="btn-action btn-blue" onclick="openModal()">➕ Nova Programação</button>
+            <div class="page-title" id="current-view-title">Painel Geral de Atividades</div>
+            <button class="btn-action btn-blue" onclick="openModal()">➕ Novo Agendamento Integrado</button>
         </div>
 
-        <div id="tab-bi" class="view-panel active">
-            <div class="alert-section">
-                <h3 style="color:#991b1b;">⚠️ ALERTA LOGÍSTICO: Obras Sem Técnico Vinculado</h3>
-                <div class="alert-grid" id="target-obras-sem-tecnico"></div>
-            </div>
-
+        <!-- ABA 1: PAINEL GERAL (RESUMO) -->
+        <div id="tab-dashboard" class="view-panel active">
             <div class="dash-widgets">
-                <div class="widget-card" style="border-left:4px solid #2563eb;"><span>Operações</span><h3 id="w-ativos">0</h3></div>
-                <div class="widget-card" style="border-left:4px solid #dc2626;"><span>Sem Técnico</span><h3 id="w-gargalo">0</h3></div>
-                <div class="widget-card" style="border-left:4px solid #16a34a;"><span>Receita Alocada</span><h3 id="w-receita">R$ 0,00</h3></div>
-                <div class="widget-card" style="border-left:4px solid #ea580c;"><span>Peso de Carga</span><h3 id="w-peso">0 kg</h3></div>
+                <div class="widget-card" style="border-left: 4px solid var(--primary);"><span>Obras Ativas</span><h3 id="w-entregas">0</h3></div>
+                <div class="widget-card" style="border-left: 4px solid #ef4444;"><span>Assistências Técnicas</span><h3 id="w-assistencias">0</h3></div>
+                <div class="widget-card" style="border-left: 4px solid var(--success);"><span>Contratos na Semana</span><h3 id="w-contratos">R$ 0,00</h3></div>
+                <div class="widget-card" style="border-left: 4px solid #6b21a8;"><span>Carga Geral</span><h3 id="w-peso">0 kg</h3></div>
             </div>
 
             <div class="deep-filters">
-                <div><label>Supervisor Geral</label><select id="f-supervisor" onchange="filtrarPainelGerencial()"><option value="">Todos</option><option value="Bárbara">Bárbara</option><option value="Ênio">Ênio</option><option value="Rafael">Rafael</option></select></div>
-                <div><label>Região / Setor</label><select id="f-regiao" onchange="filtrarPainelGerencial()"><option value="">Todos</option><option value="Norte">Zona Norte</option><option value="Sul">Zona Sul</option><option value="Leste">Zona Leste</option><option value="Oeste">Zona Oeste</option><option value="Condomínios">Condomínios</option></select></div>
-                <div><label>Status</label><select id="f-status" onchange="filtrarPainelGerencial()"><option value="">Todos</option><option value="Agendado">Agendado</option><option value="Em andamento">Em andamento</option><option value="Concluído">Concluído</option></select></div>
+                <div>
+                    <label>Buscar por Cliente</label>
+                    <input type="text" id="search-cliente" placeholder="Nome do cliente..." oninput="filtrarGeral()">
+                </div>
+                <div>
+                    <label>Filtrar por Técnico</label>
+                    <input type="text" id="search-tecnico" placeholder="Nome do profissional..." oninput="filtrarGeral()">
+                </div>
+                <div>
+                    <label>Tipo de Serviço</label>
+                    <select id="search-tipo" onchange="filtrarGeral()">
+                        <option value="">Todos os Tipos</option>
+                        <option value="Montagem">Montagem Padrão</option>
+                        <option value="Assistência">Assistência Técnica</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Status Operacional</label>
+                    <select id="search-status" onchange="filtrarGeral()">
+                        <option value="">Todos os Status</option>
+                        <option value="Agendado">Agendado</option>
+                        <option value="Em rota">Em rota de entrega</option>
+                        <option value="Em montagem">Em execução</option>
+                        <option value="Concluído">Concluído</option>
+                    </select>
+                </div>
             </div>
 
-            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px;" id="target-cards-gerenciais"></div>
+            <h3 style="margin-bottom:15px; font-weight:700;">Acompanhamento de Fluxo Rápido</h3>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:20px;" id="target-cards-gerais"></div>
         </div>
 
+        <!-- ABA 2: CRONOGRAMA EXCLUSIVO DE ENTREGA DOS MÓVEIS -->
         <div id="tab-deliveries" class="view-panel">
-            <h3 style="margin-bottom: 20px; font-weight:800; color:var(--primary);">🚚 Linha do Tempo: Entrega Física dos Móveis (Caminhões)</h3>
-            <p style="font-size:0.9rem; color:#64748b; margin-bottom:20px;">Monitore as datas de reuniões e descarregamento de caixas agendadas nos clientes:</p>
+            <div style="background:#eff6ff; padding:15px; border-radius:8px; border:1px solid #bfdbfe; margin-bottom:20px; font-size:0.9rem; color:#1e40af;">
+                <b>🚚 Controle de Frotas e Recebimento:</b> Monitoramento do dia do descarregamento das caixas e conferência de volumes no cliente.
+            </div>
             <div class="kanban-grid" id="target-delivery-board"></div>
         </div>
 
-        <div id="tab-kanban" class="view-panel">
-            <h3 style="margin-bottom: 20px; font-weight:800;">🪵 Escala de Equipes Técnicas (Montadores em Campo)</h3>
-            <div class="kanban-grid" id="target-kanban-board"></div>
+        <!-- ABA 3: ESCALA DE MONTAGEM E ASSISTÊNCIA TÉCNICA -->
+        <div id="tab-assembly" class="view-panel">
+            <div style="background:#fdf2f8; padding:15px; border-radius:8px; border:1px solid #fbcfe8; margin-bottom:20px; font-size:0.9rem; color:#9d174d;">
+                <b>🪵 Escala de Campo:</b> Visualização das equipes técnicas alocadas, diferenciando montagens de cronogramas de assistência técnica corretiva.
+            </div>
+            <div class="kanban-grid" id="target-assembly-board"></div>
         </div>
 
-        <div id="tab-relatorios" class="view-panel">
+        <!-- ABA 4: HISTÓRICO COMPLETO -->
+        <div id="tab-reports" class="view-panel">
             <table class="data-table">
                 <thead>
-                    <tr><th>Cliente</th><th>Região</th><th>Supervisor</th><th>Entrega Móveis</th><th>Equipe Montagem</th><th>Valor</th><th>Peso</th><th>Status</th></tr>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Endereço / Local</th>
+                        <th>Tipo</th>
+                        <th>Dia da Entrega</th>
+                        <th>Dia Execução</th>
+                        <th>Profissional</th>
+                        <th>Contrato</th>
+                        <th>Detalhes da Assistência / Serviço</th>
+                        <th>Status</th>
+                    </tr>
                 </thead>
-                <tbody id="target-tabela-completa"></tbody>
+                <tbody id="target-tabela-relatorios"></tbody>
             </table>
         </div>
     </div>
 
-    <div class="tech-container" id="app-tech-content">
-        <div class="tech-header"><div><h3>SOLUÇÃO FIELD</h3><small>Técnico de Campo</small></div><button class="btn-action" style="color:red;" onclick="fazerLogout()">Sair</button></div>
-        <div id="target-cards-tecnico" style="margin-top:15px;"></div>
-    </div>
-
+    <!-- MODAL INTEGRADO DE REGISTRO -->
     <div class="modal" id="modal-sistema">
         <div class="modal-content">
-            <h3 style="font-weight:800; color:var(--primary);">Cadastrar Nova Operação Integrada</h3>
-            <form id="form-sistema" onsubmit="salvarFormulario(event)">
+            <h3 style="font-weight:800; color:var(--dark); margin-bottom:10px;">Novo Agendamento Operacional</h3>
+            <form id="form-solucao" onsubmit="salvarFormulario(event)">
                 <div class="form-grid">
-                    <div class="form-group"><label>Cliente / Projeto</label><input type="text" id="form-cliente" required></div>
-                    <div class="form-group"><label>Supervisor Responsável</label>
-                        <select id="form-supervisor" required>
-                            <option value="Bárbara">Bárbara</option><option value="Ênio">Ênio</option><option value="Rafael">Rafael</option>
+                    <div class="form-group full"><label>Nome do Cliente</label><input type="text" id="f-cliente" required></div>
+                    <div class="form-group full"><label>Endereço Completo</label><input type="text" id="f-endereco" required></div>
+                    
+                    <div class="form-group full">
+                        <label>Tipo de Atendimento</label>
+                        <select id="f-tipo" required>
+                            <option value="Montagem">Montagem Padrão de Obra</option>
+                            <option value="Assistência">Assistência Técnica / Ajuste Pós-Entrega</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Região Geográfica</label>
-                        <select id="form-regiao" required>
-                            <option value="Norte">Zona Norte</option><option value="Sul">Zona Sul</option><option value="Leste">Zona Leste</option><option value="Oeste">Zona Oeste</option><option value="Condomínios">Setor de Condomínios</option>
+
+                    <!-- ENTRADAS DO CRONOGRAMA -->
+                    <div class="form-group">
+                        <label>🚚 Dia da Entrega dos Móveis</label>
+                        <select id="f-dia-entrega" required>
+                            <option value="Segunda">Segunda-feira</option>
+                            <option value="Terça">Terça-feira</option>
+                            <option value="Quarta">Quarta-feira</option>
+                            <option value="Quinta">Quinta-feira</option>
+                            <option value="Sexta">Sexta-feira</option>
+                            <option value="Sábado">Sábado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🪵 Início do Trabalho Técnico</label>
+                        <select id="f-dia-montagem" required>
+                            <option value="Segunda">Segunda-feira</option>
+                            <option value="Terça">Terça-feira</option>
+                            <option value="Quarta">Quarta-feira</option>
+                            <option value="Quinta">Quinta-feira</option>
+                            <option value="Sexta">Sexta-feira</option>
+                            <option value="Sábado">Sábado</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group"><label>Técnico Alocado</label><input type="text" id="f-tecnico" placeholder="Ex: Danilo / Matheus" required></div>
+                    <div class="form-group"><label>Status Inicial</label>
+                        <select id="f-status">
+                            <option value="Agendado">Agendado</option>
+                            <option value="Em rota">Em rota de entrega</option>
+                            <option value="Em montagem">Em execução</option>
+                            <option value="Concluído">Concluído</option>
                         </select>
                     </div>
                     
-                    <div class="form-group"><label>🚚 Dia da Entrega dos Móveis</label>
-                        <select id="form-dia-entrega" required>
-                            <option value="Segunda">Segunda</option><option value="Terça">Terça</option><option value="Quarta">Quarta</option><option value="Quinta">Quinta</option><option value="Sexta">Sexta</option><option value="Sábado">Sábado</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>🪵 Dia do Início da Montagem</label>
-                        <select id="form-dia-montagem" required>
-                            <option value="Segunda">Segunda</option><option value="Terça">Terça</option><option value="Quarta">Quarta</option><option value="Quinta">Quinta</option><option value="Sexta">Sexta</option><option value="Sábado">Sábado</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group"><label>Técnico Alocado</label>
-                        <select id="form-tecnico"><option value="">-- Aguardando Técnico --</option><option value="Danilo">Danilo</option><option value="Matheus">Matheus</option></select>
-                    </div>
-                    <div class="form-group"><label>Valor Contrato (R$)</label><input type="number" id="form-valor" value="0"></div>
-                    <div class="form-group"><label>Peso Cubagem (kg)</label><input type="number" id="form-peso" value="0"></div>
-                    <div class="form-group full"><label>Endereço</label><input type="text" id="form-endereco" required></div>
-                    <div class="form-group full"><label>Descrição das Especificações</label><textarea id="form-desc" rows="3" required></textarea></div>
+                    <div class="form-group"><label>Valor do Contrato (R$)</label><input type="number" id="f-valor" step="0.01" value="0.00"></div>
+                    <div class="form-group"><label>Peso Cubagem / Volume (kg)</label><input type="number" id="f-peso" value="0"></div>
+                    
+                    <div class="form-group full"><label>Detalhes do Serviço / Pendências de Assistência</label><textarea id="f-servico" rows="3" placeholder="Descreva os itens da montagem ou as peças que necessitam de assistência técnica..." required></textarea></div>
                 </div>
-                <div style="margin-top:20px; display:flex; gap:10px;">
-                    <button type="button" class="btn-action" style="flex:1" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-action btn-blue" style="flex:1">Salvar na Base de Dados</button>
+                <div style="margin-top:25px; display:flex; gap:12px;">
+                    <button type="button" class="btn-action" style="flex:1; justify-content:center;" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-action btn-blue" style="flex:1; justify-content:center;">Gravar Registro</button>
                 </div>
             </form>
         </div>
@@ -236,36 +267,13 @@
 
     <script>
         const diasSemana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-        let activeRole = localStorage.getItem('deep_role_v3') || null;
-
-        // BANCO DE DADOS ATUALIZADO: Contém dia de entrega dos móveis e dia da montagem de forma independente
-        let banco_dados = JSON.parse(localStorage.getItem('solucao_deep_db_v3')) || [
-            { id: 1, cliente: "Adriele Silva", diaEntrega: "Segunda", diaMontagem: "Terça", supervisor: "Bárbara", regiao: "Condomínios", tecnico: "", valor: 18200, peso: 450, endereco: "Cond. Alphaville, Casa 45", desc: "Entrega programada para segunda de manhã. Montagem inicia na terça.", status: "Agendado", entrada: "", saida: "" },
-            { id: 2, cliente: "Luiz Fabrício", diaEntrega: "Segunda", diaMontagem: "Segunda", supervisor: "Ênio", regiao: "Sul", tecnico: "Danilo", valor: 24500, peso: 680, endereco: "Av. Copacabana, 1402", desc: "Entrega e montagem imediata no mesmo dia.", status: "Em andamento", entrada: "08:15", saida: "" }
+        
+        // Mantendo seu banco com as assistências e montagens integradas
+        let database = JSON.parse(localStorage.getItem('solucao_db_v5')) || [
+            { id: 1, cliente: "Gregório Ballarotti", endereco: "Al. Calêndula, Qd 4", tipo: "Montagem", diaEntrega: "Segunda", diaMontagem: "Segunda", tecnico: "Danilo", valor: 12500, peso: 420, servico: "Dar continuidade na instalação civil e cabeamento estruturado.", status: "Agendado" },
+            { id: 2, cliente: "Fabricio Fleury", endereco: "Edifício Authentic, Apto 1402", tipo: "Montagem", diaEntrega: "Segunda", diaMontagem: "Terça", tecnico: "Matheus", valor: 24500, peso: 680, servico: "Montagem completa da Cozinha Gourmet e painéis ripados.", status: "Em montagem" },
+            { id: 3, cliente: "Tamara Segala", endereco: "Fazenda Pouso Alegre", tipo: "Assistência", diaEntrega: "Quinta", diaMontagem: "Quinta", tecnico: "Danilo", valor: 0, peso: 15, servico: "Assistência técnica: Ajuste nas dobradiças com amortecedor do armário superior e troca de puxador riscado.", status: "Agendado" }
         ];
-
-        function processarLogin(e) {
-            e.preventDefault();
-            const pass = document.getElementById('login-password').value;
-            if(pass === 'admin123') { activeRole = 'supervisor'; }
-            else if(pass === 'tech123') { activeRole = 'tecnico'; }
-            else { alert('Incorreto'); return; }
-            localStorage.setItem('deep_role_v3', activeRole);
-            checarSeguranca();
-        }
-
-        function fazerLogout() { localStorage.removeItem('deep_role_v3'); activeRole = null; checarSeguranca(); }
-
-        function checarSeguranca() {
-            const block = document.getElementById('login-screen-block');
-            const side = document.getElementById('app-sidebar');
-            const main = document.getElementById('app-main-content');
-            const tech = document.getElementById('app-tech-content');
-
-            if(!activeRole) { block.style.display='flex'; side.style.display='none'; main.style.display='none'; tech.style.display='none'; }
-            else if(activeRole === 'supervisor') { block.style.display='none'; side.style.display='flex'; main.style.display='flex'; tech.style.display='none'; filtrarPainelGerencial(); }
-            else if(activeRole === 'tecnico') { block.style.display='none'; side.style.display='none'; main.style.display='none'; tech.style.display='flex'; renderVisaoTecnico(); }
-        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
@@ -274,68 +282,73 @@
             document.getElementById(`tab-${tabId}`).classList.add('active');
             document.getElementById(`nav-${tabId}`).classList.add('active');
 
+            const titles = { dashboard: "Painel Geral de Atividades", deliveries: "🚚 Cronograma de Entrega dos Móveis", assembly: "🪵 Escala de Montagem & Assistência", reports: "📜 Histórico de Lançamentos" };
+            document.getElementById('current-view-title').innerText = titles[tabId];
+
+            if(tabId === 'dashboard') filtrarGeral();
             if(tabId === 'deliveries') renderCronogramaEntregas();
-            if(tabId === 'kanban') renderKanbanSemanal();
-            if(tabId === 'relatorios') renderTabelaCompleta();
+            if(tabId === 'assembly') renderEscalaMontagem();
+            if(tabId === 'reports') renderRelatorios();
         }
 
-        function filtrarPainelGerencial() {
-            const supFiltro = document.getElementById('f-supervisor').value;
-            const regFiltro = document.getElementById('f-regiao').value;
-            const statFiltro = document.getElementById('f-status').value;
+        function filtrarGeral() {
+            const cFilter = document.getElementById('search-cliente').value.toLowerCase();
+            const tFilter = document.getElementById('search-tecnico').value.toLowerCase();
+            const typeFilter = document.getElementById('search-tipo').value;
+            const sFilter = document.getElementById('search-status').value;
 
-            const dadosFiltrados = banco_dados.filter(item => {
-                return (supFiltro === "" || item.supervisor === supFiltro) &&
-                       (regFiltro === "" || item.regiao === regFiltro) &&
-                       (statFiltro === "" || item.status === statFiltro);
+            const filtrados = database.filter(item => {
+                return (item.cliente.toLowerCase().includes(cFilter)) &&
+                       (item.tecnico.toLowerCase().includes(tFilter)) &&
+                       (typeFilter === "" || item.tipo === typeFilter) &&
+                       (sFilter === "" || item.status === sFilter);
             });
 
-            // Alertas Sem Técnico
-            const targetSemTecnico = document.getElementById('target-obras-sem-tecnico'); targetSemTecnico.innerHTML = '';
-            const semTecnicoLista = banco_dados.filter(i => i.tecnico === "");
-            document.getElementById('w-gargalo').innerText = semTecnicoLista.length;
+            // Atualiza Contadores do Dashboard
+            document.getElementById('w-entregas').innerText = database.length;
+            document.getElementById('w-assistencias').innerText = database.filter(i => i.tipo === "Assistência").length;
+            document.getElementById('w-contratos').innerText = "R$ " + database.reduce((acc, curr) => acc + curr.valor, 0).toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            document.getElementById('w-peso').innerText = database.reduce((acc, curr) => acc + curr.peso, 0) + " kg";
 
-            semTecnicoLista.forEach(item => {
-                targetSemTecnico.innerHTML += `
-                    <div class="system-card" style="border: 1px solid #f87171;">
-                        <div class="card-meta-line"><span class="region-badge">📍 ${item.regiao}</span><span class="supervisor-badge">Sup: ${item.supervisor}</span></div>
+            // Renderiza Cards Principais
+            const container = document.getElementById('target-cards-gerenciais');
+            container.innerHTML = '';
+            filtrados.forEach(item => {
+                const badgeTipo = item.tipo === "Assistência" ? 
+                    `<span class="badge-tag badge-assist">🛠️ ASSISTÊNCIA</span>` : 
+                    `<span class="badge-tag badge-tech">🪵 MONTAGEM</span>`;
+
+                container.innerHTML += `
+                    <div class="system-card" style="border-top: 4px solid ${item.tipo === 'Assistência' ? 'var(--danger)' : 'var(--primary)'}">
+                        <div class="card-meta-line">
+                            ${badgeTipo}
+                            <span class="badge-tag badge-delivery">🚚 Ent: ${item.diaEntrega}</span>
+                        </div>
                         <div class="card-title">${item.cliente}</div>
-                        <div class="card-detail"><span>Móveis Entregam:</span> <b style="color:blue;">${item.diaEntrega}</b></div>
+                        <div class="card-detail">Local: <b>${item.endereco}</b></div>
+                        <div class="card-detail">Técnico: <b>${item.tecnico}</b></div>
+                        <div class="card-detail">Status: <b style="color: var(--primary)">${item.status}</b></div>
+                        <div class="card-obs"><b>Serviço:</b> ${item.servico}</div>
                     </div>
                 `;
             });
-
-            document.getElementById('w-ativos').innerText = dadosFiltrados.length;
-            document.getElementById('w-receita').innerText = `R$ ${dadosFiltrados.reduce((a, b) => a + b.valor, 0).toLocaleString('pt-BR')}`;
-            document.getElementById('w-peso').innerText = `${dadosFiltrados.reduce((a, b) => a + b.peso, 0)} kg`;
-
-            const targetCards = document.getElementById('target-cards-gerenciais'); targetCards.innerHTML = '';
-            dadosFiltrados.forEach(item => {
-                targetCards.innerHTML += `
-                    <div class="system-card">
-                        <div class="card-meta-line"><span class="region-badge">📍 ${item.regiao}</span><span class="supervisor-badge">Sup: ${item.supervisor}</span></div>
-                        <div class="card-title">${item.cliente}</div>
-                        <div class="card-detail"><span>🚚 Entrega Móveis:</span> <b>${item.diaEntrega}</b></div>
-                        <div class="card-detail"><span>🪵 Início Montagem:</span> <b>${item.diaMontagem}</b></div>
-                        <div class="card-detail"><span>Mão de Obra:</span> <b>${item.tecnico || '❌ Não alocado'}</b></div>
-                    </div>
-                `;
-            });
         }
 
-        // QUADRO NOVO 1: SÓ PARA ENTREGA DE MÓVEIS (LOGÍSTICA / FROTAS)
         function renderCronogramaEntregas() {
-            const board = document.getElementById('target-delivery-board'); board.innerHTML = '';
+            const board = document.getElementById('target-delivery-board');
+            board.innerHTML = '';
             diasSemana.forEach(dia => {
-                const col = document.createElement('div'); col.className = 'kanban-column';
-                col.innerHTML = `<div class="column-header" style="border-bottom-color:#ea580c;">🚚 ${dia.toUpperCase()}</div>`;
+                const col = document.createElement('div');
+                col.className = 'kanban-column';
+                col.innerHTML = `<div class="column-header" style="border-bottom-color: #ea580c;">🚚 ${dia}</div>`;
 
-                banco_dados.filter(item => item.diaEntrega === dia).forEach(item => {
+                database.filter(i => i.diaEntrega === dia).forEach(item => {
                     col.innerHTML += `
-                        <div class="system-card" style="border-top: 4px solid #ea580c;">
-                            <div class="card-meta-line"><span class="region-badge">${item.regiao}</span></div>
-                            <div style="font-weight:700; color:var(--primary);">${item.cliente}</div>
-                            <div style="font-size:0.75rem; color:#64748b; margin-top:5px;"><b>Carga:</b> ${item.peso} kg | <b>Sup:</b> ${item.supervisor}</div>
+                        <div class="system-card" style="border-left: 4px solid #ea580c;">
+                            <div style="font-weight:700; color:var(--dark); font-size:1rem;">${item.cliente}</div>
+                            <div style="font-size:0.75rem; margin-top:3px; font-weight:bold; color:${item.tipo === 'Assistência' ? 'var(--danger)' : 'var(--primary)'}">${item.tipo.toUpperCase()}</div>
+                            <div style="font-size:0.8rem; color:#475569; margin-top:5px;"><b>Peso/Carga:</b> ${item.peso} kg</div>
+                            <div style="font-size:0.8rem; color:#475569;"><b>Local:</b> ${item.endereco}</div>
                         </div>
                     `;
                 });
@@ -343,19 +356,21 @@
             });
         }
 
-        // QUADRO 2: SÓ PARA MONTAGEM TÉCNICA
-        function renderKanbanSemanal() {
-            const board = document.getElementById('target-kanban-board'); board.innerHTML = '';
+        function renderEscalaMontagem() {
+            const board = document.getElementById('target-assembly-board');
+            board.innerHTML = '';
             diasSemana.forEach(dia => {
-                const col = document.createElement('div'); col.className = 'kanban-column';
-                col.innerHTML = `<div class="column-header">🪵 ${dia.toUpperCase()}</div>`;
+                const col = document.createElement('div');
+                col.className = 'kanban-column';
+                col.innerHTML = `<div class="column-header" style="border-bottom-color: var(--primary);">🪵 ${dia}</div>`;
 
-                banco_dados.filter(item => item.diaMontagem === dia).forEach(item => {
+                database.filter(i => i.diaMontagem === dia).forEach(item => {
+                    const corBorda = item.tipo === 'Assistência' ? 'var(--danger)' : 'var(--primary)';
                     col.innerHTML += `
-                        <div class="system-card" style="border-top: 4px solid var(--accent);">
-                            <div style="font-size:0.7rem; color:#64748b; font-weight:bold;">📍 ${item.regiao}</div>
-                            <div style="font-weight:bold; color:var(--primary);">${item.cliente}</div>
-                            <div style="font-size:0.75rem; color:#475569; margin-top:3px;">Montador: <b>${item.tecnico || '⚠️ SEM TÉCNICO'}</b></div>
+                        <div class="system-card" style="border-left: 4px solid ${corBorda};">
+                            <div style="font-weight:700; color:var(--dark); font-size:1rem;">${item.cliente}</div>
+                            <div style="font-size:0.8rem; color:#1e40af; margin-top:4px;"><b>Profissional:</b> ${item.tecnico}</div>
+                            <div class="card-obs" style="background:#fff5f5;"><b>Instruções:</b> ${item.servico}</div>
                         </div>
                     `;
                 });
@@ -363,64 +378,55 @@
             });
         }
 
-        function renderTabelaCompleta() {
-            const corpo = document.getElementById('target-tabela-completa'); corpo.innerHTML = '';
-            banco_dados.forEach(item => {
-                corpo.innerHTML += `
+        function renderRelatorios() {
+            const tbody = document.getElementById('target-tabela-relatorios');
+            tbody.innerHTML = '';
+            database.forEach(item => {
+                const tipoTexto = item.tipo === 'Assistência' ? '<span class="badge-tag badge-assist">Assistência</span>' : '<span class="badge-tag badge-tech">Montagem</span>';
+                tbody.innerHTML += `
                     <tr>
                         <td><b>${item.cliente}</b></td>
-                        <td>${item.regiao}</td>
-                        <td>${item.supervisor}</td>
-                        <td><span class="delivery-badge">🚚 ${item.diaEntrega}</span></td>
-                        <td><b>${item.tecnico || '⚠️ Pendente'}</b> (Inicia: ${item.diaMontagem})</td>
-                        <td>R$ ${item.valor.toLocaleString('pt-BR')}</td>
-                        <td>${item.peso} kg</td>
-                        <td>${item.status}</td>
+                        <td>${item.endereco}</td>
+                        <td>${tipoTexto}</td>
+                        <td><span class="badge-tag badge-delivery">${item.diaEntrega}</span></td>
+                        <td><span class="badge-tag badge-tech">${item.diaMontagem}</span></td>
+                        <td><b>${item.tecnico}</b></td>
+                        <td>R$ ${item.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                        <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.servico}</td>
+                        <td><mark style="background:#e0f2fe; padding:2px 6px; border-radius:4px; font-weight:bold;">${item.status}</mark></td>
                     </tr>
                 `;
             });
         }
 
-        function renderVisaoTecnico() {
-            const target = document.getElementById('target-cards-tecnico'); target.innerHTML = '';
-            banco_dados.filter(i => i.tecnico !== "").forEach(item => {
-                target.innerHTML += `
-                    <div class="system-card">
-                        <div class="card-title">${item.cliente}</div>
-                        <div class="card-detail"><span>Montagem Agendada:</span> <b>${item.diaMontagem}</b></div>
-                        <div class="card-detail"><span>Local:</span> <b>${item.endereco}</b></div>
-                        <button class="btn-action btn-blue" style="width:100%; margin-top:10px;" onclick="alert('Ponto Batido')">⏱️ Bater Entrada Obra</button>
-                    </div>
-                `;
-            });
-        }
+        function openModal() { document.getElementById('modal-sistema').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modal-sistema').style.display = 'none'; }
 
-        function openModal() { document.getElementById('modal-sistema').style.display='flex'; }
-        function closeModal() { document.getElementById('modal-sistema').style.display='none'; }
-        
         function salvarFormulario(e) {
             e.preventDefault();
-            const novo = {
+            const novoItem = {
                 id: Date.now(),
-                cliente: document.getElementById('form-cliente').value,
-                supervisor: document.getElementById('form-supervisor').value,
-                regiao: document.getElementById('form-regiao').value,
-                diaEntrega: document.getElementById('form-dia-entrega').value,
-                diaMontagem: document.getElementById('form-dia-montagem').value,
-                tecnico: document.getElementById('form-tecnico').value,
-                valor: parseFloat(document.getElementById('form-valor').value || 0),
-                peso: parseInt(document.getElementById('form-peso').value || 0),
-                endereco: document.getElementById('form-endereco').value,
-                desc: document.getElementById('form-desc').value,
-                status: "Agendado", entrada: "", saida: ""
+                cliente: document.getElementById('f-cliente').value,
+                endereco: document.getElementById('f-endereco').value,
+                tipo: document.getElementById('f-tipo').value,
+                diaEntrega: document.getElementById('f-dia-entrega').value,
+                diaMontagem: document.getElementById('f-dia-montagem').value,
+                tecnico: document.getElementById('f-tecnico').value,
+                status: document.getElementById('f-status').value,
+                valor: parseFloat(document.getElementById('f-valor').value) || 0,
+                peso: parseInt(document.getElementById('f-peso').value) || 0,
+                servico: document.getElementById('f-servico').value
             };
-            banco_dados.push(novo);
-            localStorage.setItem('solucao_deep_db_v3', JSON.stringify(banco_dados));
-            closeModal(); document.getElementById('form-sistema').reset();
-            filtrarPainelGerencial();
+
+            database.push(novoItem);
+            localStorage.setItem('solucao_db_v5', JSON.stringify(database));
+            document.getElementById('form-solucao').reset();
+            closeModal();
+            filtrarGeral();
         }
 
-        checarSeguranca();
+        // Inicialização automática
+        filtrarGeral();
     </script>
 </body>
 </html>
