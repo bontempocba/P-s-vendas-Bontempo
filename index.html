@@ -3,448 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestão - Assistência e Montagem</title>
+    <title>Painel Operacional - Solução Automação & Montagem</title>
     <style>
         :root {
-            --primary: #0070f3;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --border: #cbd5e1;
-            --success: #22c55e;
-            --warning: #eab308;
-            --danger: #ef4444;
-            --info: #3b82f6;
+            --primary-blue: #0056b3;
+            --bg-light: #f4f6f9;
+            --sidebar-color: #ffffff;
+            --card-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --border-color: #e2e8f0;
+            --status-confirmed: #e3f2fd;
+            --status-text-blue: #0d47a1;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background-color: var(--light); color: var(--dark); padding-bottom: 60px; }
+        body { background-color: var(--bg-light); color: var(--text-dark); display: flex; height: 100vh; overflow: hidden; }
+
+        /* MENU LATERAL */
+        .sidebar { width: 240px; background: var(--sidebar-color); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px 15px; justify-content: space-between; shrink: 0; }
+        .logo-area { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--bg-light); }
+        .logo-area h2 { font-size: 1.4rem; color: var(--primary-blue); letter-spacing: 1px; }
+        .logo-area span { font-size: 0.75rem; color: #7f8c8d; text-transform: uppercase; }
         
-        header { background: var(--dark); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        header h1 { font-size: 1.6rem; }
-        header p { font-size: 0.9rem; color: #94a3b8; margin-top: 5px; }
-
-        /* Abas de Navegação */
-        .nav-tabs { display: flex; background: #e2e8f0; overflow-x: auto; sticky: top; }
-        .tab-btn { flex: 1; min-width: 120px; padding: 15px 10px; border: none; background: none; font-weight: bold; color: #64748b; cursor: pointer; text-align: center; font-size: 0.9rem; transition: 0.2s; border-bottom: 3px solid transparent; }
-        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: white; }
-
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
-        .panel { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .panel.active { display: block; }
-
-        h2 { margin-bottom: 20px; font-size: 1.3rem; color: var(--dark); border-left: 4px solid var(--primary); padding-left: 10px; }
+        .menu-nav { display: flex; flex-direction: column; gap: 8px; }
+        .menu-btn { display: flex; align-items: center; padding: 12px 15px; border: none; background: none; border-radius: 8px; color: #576574; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-align: left; transition: 0.2s; }
+        .menu-btn.active, .menu-btn:hover { background: #f0f4f8; color: var(--primary-blue); }
         
-        /* Formulários */
-        .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 0.85rem; font-weight: 600; color: #475569; }
-        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; background: #f8fafc; }
-        .form-group textarea { resize: vertical; height: 80px; }
-        .full-width { grid-column: 1 / -1; }
+        .btn-logout { background: #fff0f0; color: #ea2027; border: 1px solid #ffccd5; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; }
 
-        button.btn-submit { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; width: 100%; transition: 0.2s; }
-        button.btn-submit:hover { background: #0056b3; }
-
-        /* Dashboard & Cards */
-        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .dash-card { background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid var(--primary); }
-        .dash-card h3 { font-size: 0.9rem; color: #64748b; text-transform: uppercase; }
-        .dash-card p { font-size: 2rem; font-weight: bold; margin-top: 10px; color: var(--dark); }
-
-        /* Lista de Registros */
-        .card-list { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .item-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 15px; position: relative; }
-        .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; }
-        .item-title { font-weight: bold; font-size: 1.1rem; color: var(--dark); }
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; color: white; text-transform: uppercase; }
+        /* ÁREA PRINCIPAL DO CONTEÚDO */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Cores dos Status */
-        .status-agendado { background: var(--info); }
-        .status-em-andamento { background: var(--warning); color: black; }
-        .status-concluido { background: var(--success); }
-        .status-parcial { background: #9333ea; }
-        .status-reagendado { background: #64748b; }
-        .status-nao-iniciado { background: #94a3b8; }
+        /* TOPO COM AÇÕES GERAIS */
+        .top-bar { background: white; padding: 15px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .week-indicator { font-weight: bold; font-size: 1.1rem; color: #34495e; }
+        .action-group { display: flex; gap: 10px; }
+        
+        .btn-action { padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border-color); background: white; }
+        .btn-blue { background: var(--primary-blue); color: white; border: none; }
+        .btn-green { background: #2ed573; color: white; border: none; }
 
-        .item-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; font-size: 0.88rem; color: #475569; }
-        .item-details span { display: block; }
-        .obs-box { margin-top: 10px; padding: 8px; background: #e2e8f0; border-radius: 4px; font-size: 0.85rem; font-style: italic; }
+        /* VIEW: DASHBOARD DA AGENDA SEMANAl */
+        .view-panel { flex: 1; padding: 20px; overflow-y: auto; display: none; }
+        .view-panel.active { display: block; }
 
-        /* Responsividade Celular */
-        @media (max-width: 600px) {
-            header h1 { font-size: 1.3rem; }
-            .tab-btn { padding: 12px 5px; font-size: 0.8rem; }
+        /* GRID DA AGENDA SEMANAL */
+        .agenda-grid { display: grid; grid-template-columns: repeat(7, minmax(250px, 1fr)); gap: 12px; margin-top: 15px; height: calc(100vh - 220px); overflow-x: auto; align-items: start; }
+        .day-column { background: #edf2f7; border-radius: 8px; padding: 10px; min-height: 450px; max-height: 100%; overflow-y: auto; border: 1px solid #cbd5e1; }
+        .day-header { text-align: center; padding: 8px; background: white; border-radius: 6px; font-weight: bold; font-size: 0.85rem; margin-bottom: 12px; border-bottom: 3px solid var(--primary-blue); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        /* CARDS DE ATENDIMENTO */
+        .agenda-card { background: var(--card-bg); border-radius: 6px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-left: 4px solid var(--primary-blue); font-size: 0.82rem; line-height: 1.4; border: 1px solid #cbd5e1; border-left: 4px solid var(--primary-blue); }
+        .card-time-tech { display: flex; justify-content: space-between; font-weight: bold; color: #2c3e50; margin-bottom: 6px; font-size: 0.85rem; }
+        .card-row { margin-bottom: 3px; color: #57606f; }
+        .card-row strong { color: #2f3542; }
+        .card-status { display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; background: var(--status-confirmed); color: var(--status-text-blue); }
+
+        /* MODAL / FORMULÁRIO */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 10px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: bold; }
+        .close-btn { font-size: 1.5rem; cursor: pointer; background: none; border: none; }
+
+        .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.8rem; font-weight: bold; color: #57606f; }
+        .form-group input, .form-group select, .form-group textarea { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
+
+        /* SEÇÃO DE INDICADORES (WIDGETS) */
+        .indicators-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .indicator-card { background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .indicator-card span { font-size: 0.8rem; color: #747d8c; font-weight: 600; text-transform: uppercase; }
+        .indicator-card h3 { font-size: 1.5rem; color: var(--text-dark); }
+
+        /* ESTILO EXCLUSIVO DE IMPRESSÃO DO INDICADOR SELECONADO */
+        @media print {
+            body * { visibility: hidden; }
+            #print-report-area, #print-report-area * { visibility: visible; }
+            #print-report-area { position: absolute; left: 0; top: 0; width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Painel Operacional Integrado</h1>
-        <p>Controle Real-Time de Assistências Técnicas e Montagens</p>
-    </header>
-
-    <!-- Menu de Abas Superior (Fácil acesso no celular) -->
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('dash')">📊 Resumo</button>
-        <button class="tab-btn" onclick="switchTab('assistencia')">🔧 Assistência</button>
-        <button class="tab-btn" onclick="switchTab('montagem')">🪵 Montagem</button>
-        <button class="tab-btn" onclick="switchTab('historico')">📋 Histórico</button>
+    <div class="sidebar">
+        <div>
+            <div class="logo-area">
+                <h2>SOLUÇÃO</h2>
+                <span>Pós-Montagem & Serviços</span>
+            </div>
+            <div class="menu-nav">
+                <button class="menu-btn active" onclick="switchView('agenda')">📅 Agenda Semanal</button>
+                <button class="menu-btn" onclick="switchView('indicadores')">📊 Indicadores da Semana</button>
+            </div>
+        </div>
+        <button class="btn-logout">Sair</button>
     </div>
 
-    <div class="container">
-
-        <!-- PAINEL 1: DASHBOARD (RESUMO DIÁRIO) -->
-        <div id="panel-dash" class="panel active">
-            <h2>Atividades de Hoje</h2>
-            <div class="dash-grid">
-                <div class="dash-card" style="border-top-color: var(--info)">
-                    <h3>Assistências Hoje</h3>
-                    <p id="count-assist">2</p>
-                </div>
-                <div class="dash-card" style="border-top-color: var(--warning)">
-                    <h3>Obras em Montagem</h3>
-                    <p id="count-montagem">1</p>
-                </div>
-                <div class="dash-card" style="border-top-color: var(--success)">
-                    <h3>Serviços Concluídos</h3>
-                    <p id="count-concluidos">1</p>
-                </div>
-            </div>
-            
-            <h2>Acompanhamento em Tempo Real</h2>
-            <div class="card-list" id="dash-live-list">
-                <!-- Injetado dinamicamente via JS -->
+    <div class="main-content">
+        
+        <div class="top-bar">
+            <div class="week-indicator" id="current-week-label">Semana Atual: Carregando...</div>
+            <div class="action-group">
+                <button class="btn-action" onclick="exportarRelatorioSemana()">📤 Exportar Indicador</button>
+                <button class="btn-action btn-blue" onclick="openModal()">➕ Novo Agendamento</button>
             </div>
         </div>
 
-        <!-- PAINEL 2: CADASTRO ASSISTÊNCIA TÉCNICA -->
-        <div id="panel-assistencia" class="panel">
-            <h2>Agendar Assistência Técnica</h2>
-            <form id="form-assistencia" onsubmit="saveAssistencia(event)">
+        <div id="view-agenda" class="view-panel active">
+            <div class="agenda-grid" id="agenda-board-container">
+                </div>
+        </div>
+
+        <div id="view-indicadores" class="view-panel">
+            <div id="print-report-area">
+                <h2 style="margin-bottom: 20px; color: var(--primary-blue)">📊 Relatório e Indicadores Operacionais da Semana</h2>
+                
+                <div class="indicators-bar">
+                    <div class="indicator-card">
+                        <span>Total de Contratos Ativos</span>
+                        <h3 id="ind-total-vendas">R$ 0,00</h3>
+                    </div>
+                    <div class="indicator-card">
+                        <span>Peso Total de Carga Geral</span>
+                        <h3 id="ind-total-peso">0 kg</h3>
+                    </div>
+                    <div class="indicator-card">
+                        <span>Clientes em Montagem / Atendimento</span>
+                        <h3 id="ind-total-clientes">0 Atendimentos</h3>
+                    </div>
+                </div>
+
+                <h3 style="margin: 20px 0 10px 0;">Lista Detalhada de Clientes da Semana</h3>
+                <div id="report-table-target" style="background:white; border-radius:8px; border:1px solid var(--border-color); padding:15px;">
+                    </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal" id="appointment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cadastrar Novo Atendimento / Montagem</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="form-cadastro" onsubmit="salvarNovoAgendamento(event)">
                 <div class="grid-form">
                     <div class="form-group">
+                        <label>Dia da Semana</label>
+                        <select id="form-dia" required>
+                            <option value="Segunda">Segunda-feira</option>
+                            <option value="Terça">Terça-feira</option>
+                            <option value="Quarta">Quarta-feira</option>
+                            <option value="Quinta">Quinta-feira</option>
+                            <option value="Sexta">Sexta-feira</option>
+                            <option value="Sábado">Sábado</option>
+                            <option value="Domingo">Domingo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Horário</label>
+                        <input type="time" id="form-hora" required>
+                    </div>
+                    <div class="form-group">
                         <label>Nome do Cliente</label>
-                        <input type="text" id="ast-cliente" required placeholder="Ex: Roberto Silva">
+                        <input type="text" id="form-cliente" required placeholder="Ex: Roberto Carlos">
                     </div>
                     <div class="form-group">
-                        <label>Técnico Responsável</label>
-                        <input type="text" id="ast-tecnico" required placeholder="Ex: Rafael Souza">
+                        <label>Técnico / Montador Responsável</label>
+                        <input type="text" id="form-tecnico" required placeholder="Ex: Danilo">
+                    </div>
+                    <div class="form-group full">
+                        <label>Endereço Completo</label>
+                        <input type="text" id="form-endereco" required placeholder="Rua, Número, Bairro">
                     </div>
                     <div class="form-group">
-                        <label>Data e Horário</label>
-                        <input type="datetime-local" id="ast-data" required>
+                        <label>Valor do Contrato (R$)</label>
+                        <input type="number" step="0.01" id="form-valor" placeholder="0.00" required>
                     </div>
                     <div class="form-group">
-                        <label>Status Inicial</label>
-                        <select id="ast-status">
+                        <label>Peso da Obra (kg)</label>
+                        <input type="number" id="form-peso" placeholder="Ex: 350" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Ambiente / Descrição do Serviço</label>
+                        <textarea id="form-servico" rows="3" required placeholder="Ex: Montagem da cozinha gourmet e alinhamento de frentes..."></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label>Status do Atendimento</label>
+                        <select id="form-status">
+                            <option value="Confirmado">Confirmado</option>
                             <option value="Agendado">Agendado</option>
                             <option value="Em andamento">Em andamento</option>
                             <option value="Concluído">Concluído</option>
-                            <option value="Parcialmente concluído">Parcialmente concluído</option>
-                            <option value="Reagendado">Reagendado</option>
                         </select>
                     </div>
-                    <div class="form-group full-width">
-                        <label>Endereço Completo do Atendimento</label>
-                        <input type="text" id="ast-endereco" required placeholder="Rua, Número, Bairro, Cidade">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Descrição do Serviço a ser Realizado</label>
-                        <textarea id="ast-servico" required placeholder="Descreva quais reparos, trocas ou vistorias serão feitas..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Horário de Chegada (Preenchido no local)</label>
-                        <input type="time" id="ast-chegada">
-                    </div>
-                    <div class="form-group">
-                        <label>Horário de Saída (Preenchido no local)</label>
-                        <input type="time" id="ast-saida">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Evidências Fotográficas (Antes / Depois)</label>
-                        <input type="file" id="ast-fotos" multiple accept="image/*">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Observações Adicionais</label>
-                        <textarea id="ast-obs" placeholder="Anexar detalhes, pendências de peças, etc."></textarea>
-                    </div>
                 </div>
-                <button type="submit" class="btn-submit">Salvar na Agenda de Assistência</button>
+                <button type="submit" class="btn-action btn-blue" style="width:100%; margin-top:20px; padding:12px;">Gravar Agendamento</button>
             </form>
         </div>
-
-        <!-- PAINEL 3: CONTROLE DA EQUIPE DE MONTAGEM -->
-        <div id="panel-montagem" class="panel">
-            <h2>Registrar Equipe / Obra em Montagem</h2>
-            <form id="form-montagem" onsubmit="saveMontagem(event)">
-                <div class="grid-form">
-                    <div class="form-group">
-                        <label>Montador / Líder Responsável</label>
-                        <input type="text" id="mt-montador" required placeholder="Ex: Luiz Fabrício">
-                    </div>
-                    <div class="form-group">
-                        <label>Identificação / Nome da Obra</label>
-                        <input type="text" id="mt-obra" required placeholder="Ex: Edifício Bella Vista - Apto 402">
-                    </div>
-                    <div class="form-group">
-                        <label>Nome do Cliente da Obra</label>
-                        <input type="text" id="mt-cliente" required placeholder="Ex: Construtora Aliança / Cliente Final">
-                    </div>
-                    <div class="form-group">
-                        <label>Ambiente em Montagem</label>
-                        <input type="text" id="mt-ambiente" required placeholder="Ex: Cozinha Gourmet e Closet Casal">
-                    </div>
-                    <div class="form-group">
-                        <label>Valor do Ambiente (R$)</label>
-                        <input type="number" step="0.01" id="mt-valor" placeholder="0.00">
-                    </div>
-                    <div class="form-group">
-                        <label>Peso do Ambiente (kg)</label>
-                        <input type="number" id="mt-peso" placeholder="Ex: 450">
-                    </div>
-                    <div class="form-group">
-                        <label>Status da Montagem</label>
-                        <select id="mt-status">
-                            <option value="Não iniciado">Não iniciado</option>
-                            <option value="Em montagem">Em montagem</option>
-                            <option value="Concluído">Concluído</option>
-                            <option value="Pendente">Pendente</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Endereço da Obra</label>
-                        <input type="text" id="mt-endereco" required placeholder="Endereço onde a estrutura está sendo montada">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Fotos do Andamento / Conclusão</label>
-                        <input type="file" id="mt-fotos" multiple accept="image/*">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Observações da Equipe de Montagem</label>
-                        <textarea id="mt-obs" placeholder="Relatar falta de ferragem, atraso civil, alinhamento de painéis, etc."></textarea>
-                    </div>
-                </div>
-                <button type="submit" class="btn-submit">Salvar Controle de Montagem</button>
-            </form>
-        </div>
-
-        <!-- PAINEL 4: HISTÓRICO, FILTROS E RELATÓRIOS -->
-        <div id="panel-historico" class="panel">
-            <h2>Histórico Geral & Relatórios</h2>
-            
-            <!-- Filtros de Busca -->
-            <div class="grid-form" style="background: #f1f5f9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-                <div class="form-group">
-                    <label>Filtrar por Nome (Cliente/Técnico/Obra)</label>
-                    <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Digite para buscar...">
-                </div>
-                <div class="form-group">
-                    <label>Filtrar por Status</label>
-                    <select id="filter-status" onchange="applyFilters()">
-                        <option value="Todos">Todos os Status</option>
-                        <option value="Agendado">Agendado / Não Iniciado</option>
-                        <option value="Em andamento">Em andamento / Em montagem</option>
-                        <option value="Concluído">Concluído</option>
-                        <option value="Pendente">Pendente / Parcial</option>
-                    </select>
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button onclick="window.print()" class="btn-submit" style="background:#475569;">🖨️ Exportar / Imprimir Relatório</button>
-            </div>
-
-            <div class="card-list" id="history-list">
-                <!-- Injetado dinamicamente via JS -->
-            </div>
-        </div>
-
     </div>
 
-    <!-- SCRIPT DE INTELIGÊNCIA DO SISTEMA -->
     <script>
-        // Banco de Dados Local Simulado (Fica salvo no navegador do usuário)
-        let dadosSistema = JSON.parse(localStorage.getItem('database_agenda')) || {
-            assistencias: [
-                { id: 1, tipo: 'assistencia', cliente: 'Ana Medeiros', tecnico: 'Rafael Souza', data: '2026-06-16T14:00', status: 'Agendado', endereco: 'Av. das Flores, 102', servico: 'Regulagem das dobradiças e alinhamento de frentes da cozinha.', chegada: '', saida: '', obs: 'Levar parafusos extras.', atualizadoEm: '15/06/2026 10:00' }
-            ],
-            montagens: [
-                { id: 2, tipo: 'montagem', montador: 'Luiz Fabrício', obra: 'Residencial Alphaville - Casa 12', cliente: 'Carlos Eduardo', ambiente: 'Closet Casal', valor: '18500', peso: '320', status: 'Em montagem', endereco: 'Rod. Helder Candia, Km 4', obs: 'Painéis de fechamento conferidos no local.', atualizadoEm: '15/06/2026 11:15' }
-            ]
-        };
+        // Inicia banco interno simulado com estrutura idêntica ao layout enviado
+        let database = JSON.parse(localStorage.getItem('solucao_db')) || [
+            { id: 1, dia: 'Segunda', hora: '08:30', tecnico: 'Danilo', cliente: 'Gregório Ballarotti', endereco: 'Al. Calêndula, Qd 4', servico: 'Dar continuidade na instalação civil e cabeamento estruturado.', valor: 12500, peso: 420, status: 'Confirmado' },
+            { id: 2, dia: 'Terça', hora: '08:30', tecnico: 'Danilo', cliente: 'Gregório Ballarotti', endereco: 'Al. Calêndula, Qd 4', servico: 'Alinhamento fino e automação de painéis.', valor: 12500, peso: 150, status: 'Confirmado' },
+            { id: 3, dia: 'Quinta', hora: '11:00', tecnico: 'Danilo', cliente: 'Tamara Segala', endereco: 'Fazenda Pouso Alegre', servico: 'Montagem do rack técnico principal.', valor: 8900, peso: 210, status: 'Viagem' },
+            { id: 4, dia: 'Segunda', hora: '09:00', tecnico: 'Matheus', cliente: 'Fabricio Fleury', endereco: 'Edifício Authentic', servico: 'Instalação de trilhos motorizados.', valor: 24000, peso: 680, status: 'Confirmado' }
+        ];
 
-        function salvarLocal() {
-            localStorage.setItem('database_agenda', JSON.stringify(dadosSistema));
-            render();
+        const diasSemana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
+        function setWeekLabel() {
+            // Define cabeçalho estático baseando-se no exemplo real enviado
+            document.getElementById('current-week-label').innerText = "Janela Operacional: Segunda a Domingo";
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        function switchView(viewId) {
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
             
             event.target.classList.add('active');
-            document.getElementById(`panel-${tabId}`).classList.add('active');
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            renderData();
         }
 
-        function getStatusClass(status) {
-            let s = status.toLowerCase().replace(/ /g, '-');
-            if (s === 'em-montagem') return 'status-em-andamento';
-            if (s === 'pendente' || s === 'parcialmente-concluído') return 'status-parcial';
-            return `status-${s}`;
-        }
+        function openModal() { document.getElementById('appointment-modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('appointment-modal').style.display = 'none'; }
 
-        function formatData(dataStr) {
-            if(!dataStr) return '';
-            const d = new Date(dataStr);
-            return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-        }
-
-        function saveAssistencia(e) {
+        function salvarNovoAgendamento(e) {
             e.preventDefault();
-            const novaAst = {
+            const novo = {
                 id: Date.now(),
-                tipo: 'assistencia',
-                cliente: document.getElementById('ast-cliente').value,
-                tecnico: document.getElementById('ast-tecnico').value,
-                data: document.getElementById('ast-data').value,
-                status: document.getElementById('ast-status').value,
-                endereco: document.getElementById('ast-endereco').value,
-                servico: document.getElementById('ast-servico').value,
-                chegada: document.getElementById('ast-chegada').value,
-                saida: document.getElementById('ast-saida').value,
-                obs: document.getElementById('ast-obs').value,
-                atualizadoEm: new Date().toLocaleString('pt-BR')
+                dia: document.getElementById('form-dia').value,
+                hora: document.getElementById('form-hora').value,
+                cliente: document.getElementById('form-cliente').value,
+                tecnico: document.getElementById('form-tecnico').value,
+                endereco: document.getElementById('form-endereco').value,
+                valor: parseFloat(document.getElementById('form-valor').value || 0),
+                peso: parseInt(document.getElementById('form-peso').value || 0),
+                servico: document.getElementById('form-servico').value,
+                status: document.getElementById('form-status').value
             };
-            dadosSistema.assistencias.unshift(novaAst);
-            salvarLocal();
-            document.getElementById('form-assistencia').reset();
-            switchTab('dash');
+
+            database.push(novo);
+            localStorage.setItem('solucao_db', JSON.stringify(database));
+            document.getElementById('form-cadastro').reset();
+            closeModal();
+            renderData();
         }
 
-        function saveMontagem(e) {
-            e.preventDefault();
-            const novaMt = {
-                id: Date.now(),
-                tipo: 'montagem',
-                montador: document.getElementById('mt-montador').value,
-                obra: document.getElementById('mt-obra').value,
-                cliente: document.getElementById('mt-cliente').value,
-                ambiente: document.getElementById('mt-ambiente').value,
-                valor: document.getElementById('mt-valor').value,
-                peso: document.getElementById('mt-peso').value,
-                status: document.getElementById('mt-status').value,
-                endereco: document.getElementById('mt-endereco').value,
-                obs: document.getElementById('mt-obs').value,
-                atualizadoEm: new Date().toLocaleString('pt-BR')
-            };
-            dadosSistema.montagens.unshift(novaMt);
-            salvarLocal();
-            document.getElementById('form-montagem').reset();
-            switchTab('dash');
+        function exportarRelatorioSemana() {
+            switchView('indicadores');
+            setTimeout(() => {
+                window.print();
+            }, 300);
         }
 
-        function buildCardHTML(item) {
-            if(item.tipo === 'assistencia') {
-                return `
-                    <div class="item-card">
-                        <div class="item-header">
-                            <div>
-                                <span style="font-size:0.75rem; color:var(--primary); font-weight:bold; display:block;">🔧 ASSISTÊNCIA TÉCNICA</span>
-                                <div class="item-title">${item.cliente}</div>
+        function renderData() {
+            // 1. Renderiza o Quadro Kanban da Agenda Semanal
+            const board = document.getElementById('agenda-board-container');
+            board.innerHTML = '';
+
+            diasSemana.forEach(dia => {
+                const coluna = document.createElement('div');
+                coluna.className = 'day-column';
+                
+                coluna.innerHTML = `<div class="day-header">${dia.toUpperCase()}</div>`;
+                
+                const cardsDoDia = database.filter(item => item.dia === dia);
+                
+                cardsDoDia.forEach(card => {
+                    const cardHtml = `
+                        <div class="agenda-card">
+                            <div class="card-time-tech">
+                                <span>⏱️ ${card.hora} - ${card.tecnico}</span>
                             </div>
-                            <span class="badge ${getStatusClass(item.status)}">${item.status}</span>
+                            <div class="card-row"><strong>Cliente:</strong> ${card.cliente}</div>
+                            <div class="card-row"><strong>Local:</strong> ${card.endereco}</div>
+                            <div class="card-row"><strong>Serviço:</strong> ${card.servico}</div>
+                            <div class="card-row"><strong>Valor Contrato:</strong> R$ ${parseFloat(card.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                            <div class="card-row"><strong>Peso Obra:</strong> ${card.peso || 0} kg</div>
+                            <span class="card-status">${card.status}</span>
                         </div>
-                        <div class="item-details">
-                            <span><strong>📍 Endereço:</strong> ${item.endereco}</span>
-                            <span><strong>👤 Técnico:</strong> ${item.tecnico}</span>
-                            <span><strong>📅 Data/Hora:</strong> ${formatData(item.data)}</span>
-                            <span><strong>🛠️ Serviço:</strong> ${item.servico}</span>
-                            <span><strong>⏱️ Chegada/Saída:</strong> ${item.chegada || '--:--'} às ${item.saida || '--:--'}</span>
-                            <span style="font-size:0.75rem; color:#94a3b8;">Sincronizado: ${item.atualizadoEm}</span>
-                        </div>
-                        ${item.obs ? `<div class="obs-box"><strong>Obs:</strong> ${item.obs}</div>` : ''}
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="item-card">
-                        <div class="item-header">
-                            <div>
-                                <span style="font-size:0.75rem; color:#9333ea; font-weight:bold; display:block;">🪵 EQUIPE DE MONTAGEM</span>
-                                <div class="item-title">${item.obra}</div>
-                            </div>
-                            <span class="badge ${getStatusClass(item.status)}">${item.status}</span>
-                        </div>
-                        <div class="item-details">
-                            <span><strong>👤 Cliente:</strong> ${item.cliente}</span>
-                            <span><strong>👷 Montador:</strong> ${item.montador}</span>
-                            <span><strong>🏠 Ambiente:</strong> ${item.ambiente}</span>
-                            <span><strong>💰 Valor:</strong> R$ ${parseFloat(item.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
-                            <span><strong>⚖️ Peso:</strong> ${item.peso || '0'} kg</span>
-                            <span><strong>📍 Local:</strong> ${item.endereco}</span>
-                            <span style="font-size:0.75rem; color:#94a3b8;">Sincronizado: ${item.atualizadoEm}</span>
-                        </div>
-                        ${item.obs ? `<div class="obs-box"><strong>Obs da Equipe:</strong> ${item.obs}</div>` : ''}
-                    </div>
-                `;
-            }
-        }
+                    `;
+                    coluna.innerHTML += cardHtml;
+                });
 
-        function applyFilters() {
-            render();
-        }
-
-        function render() {
-            const search = document.getElementById('filter-search').value.toLowerCase();
-            const filterStatus = document.getElementById('filter-status').value;
-
-            // Contadores
-            document.getElementById('count-assist').innerText = dadosSistema.assistencias.length;
-            document.getElementById('count-montagem').innerText = dadosSistema.montagens.length;
-            
-            let concluidos = [...dadosSistema.assistencias, ...dadosSistema.montagens].filter(i => i.status === 'Concluído').length;
-            document.getElementById('count-concluidos').innerText = concluidos;
-
-            // Lista Combinada Geral
-            const todosItens = [...dadosSistema.assistencias, ...dadosSistema.montagens];
-            
-            // Render Painel Principal (Live)
-            const liveList = document.getElementById('dash-live-list');
-            liveList.innerHTML = todosItens.slice(0, 3).map(item => buildCardHTML(item)).join('');
-            if(todosItens.length === 0) liveList.innerHTML = '<p style="color:#64748b; text-align:center;">Nenhum serviço registrado hoje.</p>';
-
-            // Render Histórico com Filtros
-            const historyList = document.getElementById('history-list');
-            
-            const itensFiltrados = todosItens.filter(item => {
-                // Filtro de Texto
-                const matchText = (
-                    (item.cliente && item.cliente.toLowerCase().includes(search)) ||
-                    (item.tecnico && item.tecnico.toLowerCase().includes(search)) ||
-                    (item.montador && item.montador.toLowerCase().includes(search)) ||
-                    (item.obra && item.obra.toLowerCase().includes(search)) ||
-                    (item.ambiente && item.ambiente.toLowerCase().includes(search))
-                );
-
-                // Filtro de Status
-                let matchStatus = true;
-                if(filterStatus !== 'Todos') {
-                    if(filterStatus === 'Agendado') matchStatus = (item.status === 'Agendado' || item.status === 'Não iniciado');
-                    if(filterStatus === 'Em andamento') matchStatus = (item.status === 'Em andamento' || item.status === 'Em montagem');
-                    if(filterStatus === 'Concluído') matchStatus = (item.status === 'Concluído');
-                    if(filterStatus === 'Pendente') matchStatus = (item.status === 'Pendente' || item.status === 'Parcialmente concluído');
-                }
-
-                return matchText && matchStatus;
+                board.appendChild(coluna);
             });
 
-            historyList.innerHTML = itensFiltrados.map(item => buildCardHTML(item)).join('');
-            if(itensFiltrados.length === 0) historyList.innerHTML = '<p style="color:#64748b; text-align:center;">Nenhum registro encontrado para os filtros aplicados.</p>';
+            // 2. Calcula e renderiza os Indicadores de Exportação
+            let totalVendas = 0;
+            let totalPeso = 0;
+            let totalClientes = database.length;
+            let tabelaHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.9rem; text-align:left;">
+                <thead>
+                    <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+                        <th style="padding:10px;">Dia</th>
+                        <th style="padding:10px;">Cliente</th>
+                        <th style="padding:10px;">Responsável</th>
+                        <th style="padding:10px;">Valor Contrato</th>
+                        <th style="padding:10px;">Peso da Obra</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            database.forEach(item => {
+                totalVendas += parseFloat(item.valor || 0);
+                totalPeso += parseInt(item.peso || 0);
+
+                tabelaHtml += `
+                    <tr style="border-bottom:1px solid #e2e8f0;">
+                        <td style="padding:10px;">${item.dia}</td>
+                        <td style="padding:10px;"><strong>${item.cliente}</strong></td>
+                        <td style="padding:10px;">${item.tecnico}</td>
+                        <td style="padding:10px;">R$ ${parseFloat(item.valor || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        <td style="padding:10px;">${item.peso || 0} kg</td>
+                    </tr>
+                `;
+            });
+
+            tabelaHtml += `</tbody></table>`;
+
+            document.getElementById('ind-total-vendas').innerText = `R$ ${totalVendas.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+            document.getElementById('ind-total-peso').innerText = `${totalPeso.toLocaleString('pt-BR')} kg`;
+            document.getElementById('ind-total-clientes').innerText = `${totalClientes} Clientes/Obras`;
+            document.getElementById('report-table-target').innerHTML = tabelaHtml;
         }
 
-        // Executa ao carregar a página
-        render();
+        // Inicialização
+        setWeekLabel();
+        renderData();
     </script>
 </body>
 </html>
