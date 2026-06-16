@@ -127,6 +127,7 @@
             
             <div class="menu-nav">
                 <button class="menu-btn active" id="nav-dashboard" onclick="switchTab('dashboard')">📊 Painel de Atendimentos</button>
+                <button class="menu-btn admin-only" id="nav-astecas" onclick="switchTab('astecas')">🛠️ Acompanhamento de Astecas</button>
                 <button class="menu-btn admin-only" id="nav-calendar-view" onclick="switchTab('calendar-view')">📅 Calendário Mensal</button>
                 <button class="menu-btn admin-only" id="nav-reports" onclick="switchTab('reports')">📜 Histórico & Relatórios</button>
                 <button class="menu-btn admin-only" id="nav-settings" onclick="switchTab('settings')">⚙️ Configurações</button>
@@ -159,397 +160,42 @@
                 </div>
             </div>
 
-            <h3 style="margin-bottom:15px; font-weight:700;" id="list-title">Fila de Atendimento</h3>
+            <h3 style="margin-bottom:15px; font-weight:700;" id="list-title">Fila de Atendimento Geral</h3>
             <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:20px;" id="target-cards-gerais"></div>
+        </div>
+
+        <div id="tab-astecas" class="view-panel">
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
+                <h3 style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">Registrar Nova OC (Asteca)</h3>
+                <form id="form-asteca" onsubmit="salvarNovaAsteca(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome do Cliente</label><input type="text" id="ast-cliente" required placeholder="Ex: Maria Oliveira"></div>
+                        <div class="form-group"><label>OC (Ordem de Compra)</label><input type="text" id="ast-oc" required placeholder="Ex: OC-98745"></div>
+                        <div class="form-group"><label>Ambiente</label><input type="text" id="ast-ambiente" required placeholder="Ex: Cozinha Gourmet / Dormitório Casal"></div>
+                        <div class="form-group"><label>Previsão de Embarque</label><input type="date" id="ast-embarque" required></div>
+                        <div class="form-group full"><label>Detalhamento do Item</label><textarea id="ast-detalhe" rows="3" required placeholder="Ex: Porta basculante em vidro refletor com furação errada, puxador perfil anodizado..."></textarea></div>
+                    </div>
+                    <button type="submit" class="btn-action btn-blue" style="margin-top:15px;">💾 Salvar Ordem de Compra</button>
+                </form>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
+                <h3 style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">Ordens de Compra em Andamento</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Nº OC</th>
+                            <th>Ambiente</th>
+                            <th>Detalhamento do Item</th>
+                            <th>Previsão Embarque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="target-tabela-astecas"></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="tab-calendar-view" class="view-panel">
             <div class="calendar-header">
-                <h3 style="font-weight:800; color:var(--primary);">Junho 2026</h3>
-            </div>
-            <div class="calendar-grid" id="target-calendar-grid"></div>
-        </div>
-
-        <div id="tab-reports" class="view-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h3 style="font-weight:700;">Painel Amplo de Auditoria de Ponto</h3>
-                <button class="btn-action btn-green" onclick="exportarDadosCSV()">📥 Exportar Relatório de Ponto (CSV)</button>
-            </div>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Cliente / Obra</th>
-                        <th>Tipo</th>
-                        <th>Técnico Escalado</th>
-                        <th>Entrada Registrada</th>
-                        <th>Saída Registrada</th>
-                        <th>Status Atual</th>
-                    </tr>
-                </thead>
-                <tbody id="target-tabela-relatorios"></tbody>
-            </table>
-        </div>
-
-        <div id="tab-settings" class="view-panel">
-            <div style="display:flex; flex-direction:column; gap:30px;">
-                
-                <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
-                    <h3 style="margin-bottom: 15px; font-weight: 800;">Customização Visual do Site</h3>
-                    <div class="form-grid">
-                        <div class="form-group"><label>URL da Logomarca</label><input type="text" id="cfg-logo-url"></div>
-                        <div class="form-group"><label>Título Principal</label><input type="text" id="cfg-title"></div>
-                        <div class="form-group"><label>Subtítulo</label><input type="text" id="cfg-subtitle"></div>
-                        <div class="form-group"><label>Cor Tema do Painel</label><input type="color" id="cfg-color" style="height:40px;"></div>
-                    </div>
-                    <button class="btn-action btn-blue" style="margin-top:15px;" onclick="salvarConfiguracoesLayout()">Salvar Layout</button>
-                </div>
-
-                <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
-                    <h3 style="margin-bottom: 5px; font-weight: 800;">Cadastro e Controle de Técnicos</h3>
-                    <p style="font-size:0.85rem; color:#64748b; margin-bottom:15px;">Insira novos funcionários ou remova acessos antigos instantaneamente.</p>
-                    
-                    <div class="form-grid" style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid var(--border); margin-bottom:20px;">
-                        <div class="form-group"><label>Nome do Técnico</label><input type="text" id="new-tech-name" placeholder="Ex: Rodrigo Souza"></div>
-                        <div class="form-group"><label>Usuário de Login</label><input type="text" id="new-tech-user" placeholder="Ex: rodrigo"></div>
-                        <div class="form-group"><label>Senha de Acesso</label><input type="password" id="new-tech-pass" placeholder="Defina a senha"></div>
-                        <div class="form-group" style="justify-content:flex-end;"><button class="btn-action btn-blue" style="height:42px; justify-content:center;" onclick="adicionarNovoTecnico()">＋ Adicionar Técnico</button></div>
-                    </div>
-
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nome Profissional</th>
-                                <th>Usuário</th>
-                                <th>Senha</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="target-lista-tecnicos-config"></tbody>
-                    </table>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="modal-sistema">
-        <div class="modal-content">
-            <h3 style="font-weight:800; margin-bottom:15px;">Criar Nova Ordem de Serviço</h3>
-            <form id="form-solucao" onsubmit="salvarFormulario(event)">
-                <div class="form-grid">
-                    <div class="form-group full"><label>Nome do Cliente</label><input type="text" id="f-cliente" required></div>
-                    <div class="form-group full"><label>Endereço</label><input type="text" id="f-endereco" required></div>
-                    <div class="form-group">
-                        <label>Operação</label>
-                        <select id="f-tipo"><option value="Montagem">Montagem Padrão</option><option value="Assistência">Assistência Técnica</option></select>
-                    </div>
-                    <div class="form-group"><label>Técnico Designado</label><select id="f-tecnico" required></select></div>
-                    <div class="form-group"><label>Data Entrega Carga</label><input type="date" id="f-data-entrega" required></div>
-                    <div class="form-group"><label>Data Execução Serviço</label><input type="date" id="f-data-montagem" required></div>
-                    <div class="form-group"><label>Valor Contrato (R$)</label><input type="number" id="f-valor" step="0.01" value="0.00"></div>
-                    <div class="form-group"><label>Cubagem Carga (kg)</label><input type="number" id="f-peso" value="0"></div>
-                    <div class="form-group full"><label>Detalhamento Técnico das Atividades</label><textarea id="f-servico" rows="3" required></textarea></div>
-                </div>
-                <div style="margin-top:25px; display:flex; gap:12px;">
-                    <button type="button" class="btn-action" style="flex:1; justify-content:center;" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-action btn-blue" style="flex:1; justify-content:center;">Agendar Serviço</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        let currentUser = null;
-
-        let listaTecnicos = JSON.parse(localStorage.getItem('bontempo_tecnicos')) || [
-            { nome: "Danilo", user: "danilo", pass: "123" },
-            { nome: "Matheus", user: "matheus", pass: "123" }
-        ];
-
-        let database = JSON.parse(localStorage.getItem('bontempo_db_v7')) || [
-            { id: 1, cliente: "Gregório Ballarotti", endereco: "Al. Calêndula, Qd 4", tipo: "Montagem", dataEntrega: "2026-06-01", dataMontagem: "2026-06-02", tecnico: "Danilo", valor: 12500, peso: 420, servico: "Instalação civil de marcenaria de alto padrão.", status: "Agendado", pontoEntrada: "", pontoSaida: "" },
-            { id: 2, cliente: "Fabricio Fleury", endereco: "Edifício Authentic, Apto 1402", tipo: "Montagem", dataEntrega: "2026-06-08", dataMontagem: "2026-06-09", tecnico: "Matheus", valor: 24500, peso: 680, servico: "Montagem completa da Cozinha Gourmet.", status: "Em execução", pontoEntrada: "08:15", pontoSaida: "" },
-            { id: 3, cliente: "Tamara Segala", endereco: "Fazenda Pouso Alegre", tipo: "Assistência", dataEntrega: "2026-06-15", dataMontagem: "2026-06-15", tecnico: "Danilo", valor: 0, peso: 15, servico: "Assistência: Ajuste fino de portas e alinhamento de frentes.", status: "Agendado", pontoEntrada: "", pontoSaida: "" }
-        ];
-
-        let configSystem = JSON.parse(localStorage.getItem('bontempo_config')) || {
-            logoUrl: "https://i.postimg.co/N0gXpXm7/logo-posicionamento-fundo-branco.png",
-            title: "Pós-Vendas Bontempo",
-            subtitle: "Central de Inteligência",
-            primaryColor: "#0f172a"
-        };
-
-        function executarLogin() {
-            const u = document.getElementById('login-username').value.trim();
-            const p = document.getElementById('login-password').value;
-
-            if (u === 'admin' && p === '123') {
-                currentUser = { tipo: 'admin', nome: 'Administrador' };
-            } else {
-                const encontrou = listaTecnicos.find(t => t.user === u && t.pass === p);
-                if (encontrou) {
-                    currentUser = { tipo: 'tecnico', nome: encontrou.nome };
-                }
-            }
-
-            if (currentUser) {
-                document.getElementById('view-login').style.display = 'none';
-                ajustarPermissoesTela();
-                switchTab('dashboard');
-            } else {
-                alert("Usuário ou senha incorretos!");
-            }
-        }
-
-        function executarLogout() {
-            currentUser = null;
-            document.getElementById('view-login').style.display = 'flex';
-            document.getElementById('login-username').value = '';
-            document.getElementById('login-password').value = '';
-        }
-
-        function ajustarPermissoesTela() {
-            document.getElementById('user-display-badge').innerText = `Logado como: ${currentUser.nome}`;
-            
-            if (currentUser.tipo === 'admin') {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
-                document.getElementById('list-title').innerText = "Fila de Atendimento Geral";
-            } else {
-                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-                document.getElementById('list-title').innerText = `Meus Atendimentos Agendados - ${currentUser.nome}`;
-            }
-        }
-
-        function renderConfigTecnicos() {
-            const tbody = document.getElementById('target-lista-tecnicos-config');
-            tbody.innerHTML = '';
-            listaTecnicos.forEach((t, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${t.nome}</b></td>
-                        <td><code>${t.user}</code></td>
-                        <td>••••••</td>
-                        <td><button class="btn-action btn-red" style="padding:4px 10px; font-size:0.75rem;" onclick="removerTecnico(${index})">Remover</button></td>
-                    </tr>
-                `;
-            });
-
-            const select = document.getElementById('f-tecnico');
-            select.innerHTML = '';
-            listaTecnicos.forEach(t => {
-                select.innerHTML += `<option value="${t.nome}">${t.nome}</option>`;
-            });
-        }
-
-        function adicionarNovoTecnico() {
-            const nome = document.getElementById('new-tech-name').value.trim();
-            const user = document.getElementById('new-tech-user').value.trim();
-            const pass = document.getElementById('new-tech-pass').value;
-
-            if(!nome || !user || !pass) return alert("Preencha todos os campos do técnico!");
-
-            listaTecnicos.push({ nome, user, pass });
-            localStorage.setItem('bontempo_tecnicos', JSON.stringify(listaTecnicos));
-            
-            document.getElementById('new-tech-name').value = '';
-            document.getElementById('new-tech-user').value = '';
-            document.getElementById('new-tech-pass').value = '';
-            
-            renderConfigTecnicos();
-            alert(`Técnico ${nome} cadastrado com sucesso!`);
-        }
-
-        function removerTecnico(index) {
-            if(confirm(`Tem certeza que deseja remover o acesso de ${listaTecnicos[index].nome}?`)) {
-                listaTecnicos.splice(index, 1);
-                localStorage.setItem('bontempo_tecnicos', JSON.stringify(listaTecnicos));
-                renderConfigTecnicos();
-            }
-        }
-
-        function registrarPonto(id, tipoPonto) {
-            const servico = database.find(i => i.id === id);
-            const agora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-            
-            if(tipoPonto === 'entrada') {
-                servico.pontoEntrada = agora;
-                servico.status = "Em execução";
-            } else {
-                servico.pontoSaida = agora;
-                servico.status = "Concluído";
-            }
-            
-            localStorage.setItem('bontempo_db_v7', JSON.stringify(database));
-            filtrarGeral();
-        }
-
-        function filtrarGeral() {
-            const container = document.getElementById('target-cards-gerais');
-            container.innerHTML = '';
-
-            let dadosFiltrados = database;
-
-            if (currentUser.tipo === 'tecnico') {
-                dadosFiltrados = database.filter(item => item.tecnico.toLowerCase() === currentUser.nome.toLowerCase());
-            } else {
-                const cFilter = document.getElementById('search-cliente').value.toLowerCase();
-                const tFilter = document.getElementById('search-tecnico').value.toLowerCase();
-                const typeFilter = document.getElementById('search-tipo').value;
-
-                dadosFiltrados = database.filter(item => {
-                    return (item.cliente.toLowerCase().includes(cFilter)) &&
-                           (item.tecnico.toLowerCase().includes(tFilter)) &&
-                           (typeFilter === "" || item.tipo === typeFilter);
-                });
-
-                document.getElementById('w-entregas').innerText = database.length;
-                document.getElementById('w-assistencias').innerText = database.filter(i => i.tipo === "Assistência").length;
-                document.getElementById('w-contratos').innerText = "R$ " + database.reduce((acc, curr) => acc + curr.valor, 0).toLocaleString('pt-BR', {minimumFractionDigits: 2});
-                document.getElementById('w-peso').innerText = database.reduce((acc, curr) => acc + curr.peso, 0) + " kg";
-            }
-
-            dadosFiltrados.forEach(item => {
-                const badgeTipo = item.tipo === "Assistência" ? `<span class="badge-tag badge-assist">🛠️ ASSISTÊNCIA</span>` : `<span class="badge-tag badge-tech">🪵 MONTAGEM</span>`;
-                
-                let botoesPonto = '';
-                if(currentUser.tipo === 'tecnico') {
-                    botoesPonto = `
-                        <div class="ponto-controls">
-                            <button class="btn-action btn-green" style="padding:6px 10px; font-size:0.75rem;" ${item.pontoEntrada ? 'disabled style="opacity:0.5"' : ''} onclick="registrarPonto(${item.id}, 'entrada')">▶ Registrar Entrada</button>
-                            <button class="btn-action btn-red" style="padding:6px 10px; font-size:0.75rem;" ${!item.pontoEntrada || item.pontoSaida ? 'disabled style="opacity:0.5"' : ''} onclick="registrarPonto(${item.id}, 'saída')">■ Registrar Saída</button>
-                        </div>
-                    `;
-                }
-
-                container.innerHTML += `
-                    <div class="system-card" style="border-top: 4px solid ${item.tipo === 'Assistência' ? 'var(--assist-color)' : 'var(--primary)'}">
-                        <div class="card-meta-line">${badgeTipo} <span class="badge-tag badge-delivery">🚚 Carga: ${item.dataEntrega.split('-').reverse().slice(0,2).join('/')}</span></div>
-                        <div class="card-title">${item.cliente}</div>
-                        <div class="card-detail">📍 Local: <b>${item.endereco}</b></div>
-                        <div class="card-detail">👤 Técnico: <b>${item.tecnico}</b></div>
-                        <div class="card-obs"><b>Serviço:</b> ${item.servico}</div>
-                        <div class="ponto-time">
-                            ⏱ Entrada: ${item.pontoEntrada || '---'} | Saída: ${item.pontoSaida || '---'}
-                        </div>
-                        ${botoesPonto}
-                    </div>
-                `;
-            });
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            document.getElementById(`nav-${tabId}`).classList.add('active');
-
-            if(tabId === 'dashboard') filtrarGeral();
-            if(tabId === 'calendar-view') renderCalendarioMensal();
-            if(tabId === 'reports') renderRelatorios();
-            if(tabId === 'settings') renderConfigLayoutInputs();
-        }
-
-        function renderCalendarioMensal() {
-            const grid = document.getElementById('target-calendar-grid'); grid.innerHTML = '';
-            const nomesDias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-            nomesDias.forEach(d => grid.innerHTML += `<div class="calendar-day-name">${d}</div>`);
-            for (let i = 0; i < 2; i++) grid.innerHTML += `<div class="calendar-cell"></div>`; 
-
-            for (let dia = 1; dia <= 30; dia++) {
-                grid.innerHTML += `<div class="calendar-cell"><div class="day-number">${dia}</div></div>`;
-            }
-        }
-
-        function renderRelatorios() {
-            const tbody = document.getElementById('target-tabela-relatorios');
-            tbody.innerHTML = '';
-            database.forEach(item => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${item.cliente}</b></td>
-                        <td>${item.tipo}</td>
-                        <td><b>${item.tecnico}</b></td>
-                        <td><mark style="background:#e0f2fe; color:#0369a1; padding:4px 8px; border-radius:4px; font-weight:bold;">${item.pontoEntrada || '⚠️ Não iniciou'}</mark></td>
-                        <td><mark style="background:#fee2e2; color:#b91c1c; padding:4px 8px; border-radius:4px; font-weight:bold;">${item.pontoSaida || '⏳ Em andamento'}</mark></td>
-                        <td><b>${item.status}</b></td>
-                    </tr>
-                `;
-            });
-        }
-
-        // FUNÇÃO DE EXPORTAÇÃO CSV (PLANILHA COMPLETA)
-        function exportarDadosCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            csvContent += "Cliente;Tipo de OS;Tecnico;Entrada;Saida;Status\n";
-            
-            database.forEach(item => {
-                let linha = `"${item.cliente}";"${item.tipo}";"${item.tecnico}";"${item.pontoEntrada || 'Não bateu'}";"${item.pontoSaida || 'Não bateu'}";"${item.status}"\n`;
-                csvContent += linha;
-            });
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Relatorio_Geral_de_Ponto_PosVendas.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function applyConfigs() {
-            document.getElementById('main-logo').src = configSystem.logoUrl;
-            document.getElementById('txt-brand-title').innerText = configSystem.title;
-            document.getElementById('txt-brand-subtitle').innerText = configSystem.subtitle;
-            document.documentElement.style.setProperty('--primary', configSystem.primaryColor);
-        }
-
-        function renderConfigLayoutInputs() {
-            document.getElementById('cfg-logo-url').value = configSystem.logoUrl;
-            document.getElementById('cfg-title').value = configSystem.title;
-            document.getElementById('cfg-subtitle').value = configSystem.subtitle;
-            document.getElementById('cfg-color').value = configSystem.primaryColor;
-            renderConfigTecnicos();
-        }
-
-        function salvarConfiguracoesLayout() {
-            configSystem.logoUrl = document.getElementById('cfg-logo-url').value;
-            configSystem.title = document.getElementById('cfg-title').value;
-            configSystem.subtitle = document.getElementById('cfg-subtitle').value;
-            configSystem.primaryColor = document.getElementById('cfg-color').value;
-            
-            localStorage.setItem('bontempo_config', JSON.stringify(configSystem));
-            applyConfigs();
-            alert("Layout modificado com sucesso!");
-        }
-
-        function openModal() { document.getElementById('modal-sistema').style.display = 'flex'; }
-        function closeModal() { document.getElementById('modal-sistema').style.display = 'none'; }
-
-        function salvarFormulario(e) {
-            e.preventDefault();
-            const novo = {
-                id: Date.now(),
-                cliente: document.getElementById('f-cliente').value,
-                endereco: document.getElementById('f-endereco').value,
-                tipo: document.getElementById('f-tipo').value,
-                dataEntrega: document.getElementById('f-data-entrega').value,
-                dataMontagem: document.getElementById('f-data-montagem').value,
-                tecnico: document.getElementById('f-tecnico').value,
-                valor: parseFloat(document.getElementById('f-valor').value) || 0,
-                peso: parseInt(document.getElementById('f-peso').value) || 0,
-                servico: document.getElementById('f-servico').value,
-                status: "Agendado", pontoEntrada: "", pontoSaida: ""
-            };
-            database.push(novo);
-            localStorage.setItem('bontempo_db_v7', JSON.stringify(database));
-            document.getElementById('form-solucao').reset();
-            closeModal();
-            filtrarGeral();
-        }
-
-        applyConfigs();
-        renderConfigTecnicos();
-    </script>
-</body>
-</html>
