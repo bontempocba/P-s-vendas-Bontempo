@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pós-Vendas & Logística - Central de Inteligência</title>
+    <style>
+        :root {
+            --primary: #0f172a; 
+            --accent: #1e293b;  
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --dark: #0f172a;
+            --delivery-color: #ea580c; 
+            --assembly-color: #2563eb; 
+            --assist-color: #ef4444;   
+            --success: #22c55e;
+            --purple: #6b21a8;
+            --warning: #f59e0b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--light); color: var(--dark); display: flex; height: 100vh; overflow: hidden; }
+        
+        .login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; }
+        
+        .sidebar { width: 280px; background: #ffffff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 25px 20px; justify-content: space-between; shrink: 0; }
+        .logo-container { padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; min-height: 70px; }
+        .logo-img { max-width: 100%; max-height: 60px; display: block; object-fit: contain; }
+        .brand-title { font-size: 1.25rem; color: var(--primary); font-weight: 800; text-align: center; margin-top: 5px; }
+        .brand-subtitle { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; text-align: center; display: block; }
+        
+        .menu-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; margin-top: 25px; overflow-y: auto; }
+        .menu-btn { display: flex; align-items: center; padding: 12px 15px; border: none; background: none; border-radius: 8px; color: #475569; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; text-align: left; width: 100%; shrink: 0; }
+        .menu-btn.active, .menu-btn:hover { background: #f1f5f9; color: var(--primary); box-shadow: inset 4px 0 0 var(--primary); }
+        .btn-logout { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; width: 100%; margin-top: 10px; }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-bar { background: white; padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; shrink: 0; }
+        .page-title { font-weight: 800; font-size: 1.4rem; color: var(--primary); }
+        
+        .btn-action { padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: white; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-blue { background: var(--primary); color: white; border: none; }
+        .btn-green { background: #22c55e; color: white; border: none; }
+        .btn-red { background: #ef4444; color: white; border: none; }
+        
+        .view-panel { flex: 1; padding: 30px; overflow-y: auto; display: none; }
+        .view-panel.active { display: block; }
+        
+        .dash-widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .widget-card { background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+        .widget-card span { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+        .widget-card h3 { font-size: 1.8rem; margin-top: 5px; font-weight: 800; }
+        
+        .deep-filters { background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .deep-filters div { display: flex; flex-direction: column; gap: 5px; }
+        .deep-filters label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .deep-filters select, .deep-filters input { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fafafa; }
+        
+        .system-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; transition: 0.2s; }
+        .system-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card-meta-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        .badge-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+        .badge-tech { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+        .badge-assist { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+        
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .card-detail { font-size: 0.85rem; color: #475569; margin-bottom: 6px; }
+        .card-obs { background: #f8fafc; border-left: 3px solid var(--border); padding: 8px; border-radius: 4px; font-size: 0.8rem; color: #64748b; margin-top: 8px; }
+        
+        .data-table-wrapper { width: 100%; overflow-x: auto; margin-top: 15px; border: 1px solid var(--border); border-radius: 8px; background: white; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+        .data-table th { background: #f1f5f9; padding: 12px; font-weight: 700; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #475569; border-bottom: 2px solid var(--border); }
+        .data-table td { padding: 12px; font-size: 0.85rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .data-table td.wrap-comment { white-space: normal; min-width: 200px; }
+        
+        .report-box { background: #f8fafc; border: 1px solid var(--border); padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .report-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.span-2 { grid-column: span 2; }
+        .form-group.span-4 { grid-column: span 4; }
+        .form-group label { font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; width: 100%; }
+        
+        .admin-only { display: none; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            .report-box, .report-box * { visibility: visible; }
+            .report-box { position: absolute; left: 0; top: 0; width: 100%; border: none; background: white; }
+            .btn-print-report { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE LOGIN -->
+    <div class="login-screen" id="view-login">
+        <div class="login-box">
+            <h2 style="margin-bottom: 20px; font-weight: 800;">Acesso ao Sistema</h2>
+            <div style="display:flex; flex-direction:column; gap:15px; text-align:left;">
+                <div class="form-group"><label>Usuário</label><input type="text" id="login-username" placeholder="Digite seu usuário"></div>
+                <div class="form-group"><label>Senha</label><input type="password" id="login-password" placeholder="Digite sua senha"></div>
+                <button class="btn-action btn-blue" style="justify-content:center; padding:12px;" onclick="executarLogin()">Entrar no Sistema</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU LATERAL -->
+    <div class="sidebar">
+        <div>
+            <div class="logo-container">
+                <img id="main-logo" src="https://i.postimg.co/N0gXpXm7/logo-posicionamento-fundo-branco.png" class="logo-img" alt="Logo">
+            </div>
+            <div class="brand-title">Pós-Vendas Bontempo</div>
+            <div class="brand-subtitle">Central de Inteligência</div>
+            <div class="menu-nav">
+                <button class="menu-btn active" id="nav-dashboard" onclick="switchTab('dashboard')">📊 Painel de Obras</button>
+                <button class="menu-btn admin-only" id="nav-programacao-completa" onclick="switchTab('programacao-completa')">📋 Programação de Montagem</button>
+                <button class="menu-btn admin-only" id="nav-astecas" onclick="switchTab('astecas')">🛠️ Acompanhamento de Astecas</button>
+                <button class="menu-btn admin-only" id="nav-viagens" onclick="switchTab('viagens')">✈️ Controle de Viagens</button>
+            </div>
+        </div>
+        <button class="btn-logout" onclick="executarLogout()">Sair do Painel</button>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title" id="current-view-title">Painel de Atividades</div>
+            <div id="user-display-badge" style="font-weight:bold; background:#e2e8f0; padding:6px 12px; border-radius:20px; font-size:0.85rem;"></div>
+        </div>
+
+        <!-- ABA DASHBOARD -->
+        <div id="tab-dashboard" class="view-panel active">
+            <div class="dash-widgets admin-only">
+                <div class="widget-card" style="border-left: 4px solid var(--primary);"><span>Projetos em Andamento</span><h3 id="w-total-obras">0</h3></div>
+                <div class="widget-card" style="border-left: 4px solid var(--assist-color);"><span>Volume Controlado</span><h3 id="w-peso-total">0 kg</h3></div>
+            </div>
+            <div class="deep-filters admin-only">
+                <div><label>Buscar Cliente</label><input type="text" id="search-cliente" placeholder="Nome do cliente..." oninput="filtrarDashboard()"></div>
+            </div>
+            <h3 style="margin-bottom:15px; font-weight:700;">Fila de Atendimento Geral</h3>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:20px;" id="target-cards-gerais"></div>
+        </div>
+
+        <!-- NOVA ABA COMPLETA: PROGRAMAÇÃO DE MONTAGEM (SUBSTITUTA DO EXCEL) -->
+        <div id="tab-programacao-completa" class="view-panel">
+            <!-- FORMULÁRIO DE LANÇAMENTO -->
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
+                <h3 style="margin-bottom: 5px; font-weight: 800; color: var(--primary);">Lançamento na Programação de Montagem</h3>
+                <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Insira os dados abaixo para alimentar o cronograma unificado de montagens.</p>
+                
+                <form id="form-programacao" onsubmit="salvarNovaProgramacao(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Supervisor / Regional</label>
+                            <select id="prog-supervisor" required>
+                                <option value="Evelyne - SUL">Evelyne - SUL</option>
+                                <option value="Marcelo - NORTE">Marcelo - NORTE</option>
+                                <option value="Soraya - SUL">Soraya - SUL</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Mês de Referência</label>
+                            <select id="prog-mes" required>
+                                <option value="JANEIRO">Janeiro</option>
+                                <option value="FEVEREIRO">Fevereiro</option>
+                                <option value="MARÇO">Março</option>
+                                <option value="ABRIL">Abril</option>
+                                <option value="MAIO">Maio</option>
+                                <option value="JUNHO" selected>Junho</option>
+                                <option value="JULHO">Julho</option>
+                                <option value="AGOSTO">Agosto</option>
+                                <option value="SETEMBRO">Setembro</option>
+                                <option value="OUTUBRO">Outubro</option>
+                                <option value="NOVEMBRO">Novembro</option>
+                                <option value="DEZEMBRO">Dezembro</option>
+                            </select>
+                        </div>
+                        <div class="form-group span-2"><label>Cliente</label><input type="text" id="prog-cliente" required></div>
+                        
+                        <div class="form-group"><label>Consultora</label><input type="text" id="prog-consultora" required></div>
+                        <div class="form-group"><label>Conferente</label><input type="text" id="prog-conferente" required></div>
+                        <div class="form-group"><label>P. T. (Pronto Técnico)</label><input type="text" id="prog-pt" placeholder="Ex: OK"></div>
+                        <div class="form-group"><label>Prazo Final</label><input type="text" id="prog-prazo" placeholder="Ex: 28/06/2026 ou LOTE" required></div>
+                        
+                        <div class="form-group span-2"><label>Ambiente</label><input type="text" id="prog-ambiente" placeholder="Ex: Gourmet / Suíte" required></div>
+                        <div class="form-group"><label>Lote</label><input type="text" id="prog-lote" placeholder="Ex: 07/05/2026"></div>
+                        <div class="form-group"><label>Vistoria</label><input type="text" id="prog-vistoria" placeholder="Ex: 22/06/2026 ou OK"></div>
+                        
+                        <div class="form-group"><label>Data de Entrega</label><input type="text" id="prog-entrega" placeholder="Ex: 29/06/2026" required></div>
+                        <div class="form-group"><label>Valor (R$)</label><input type="text" id="prog-valor" placeholder="Ex: R$ 327.000,00"></div>
+                        <div class="form-group"><label>KG / Carga</label><input type="text" id="prog-kg" placeholder="Ex: 2535 ou 13TON" required></div>
+                        
+                        <div class="form-group span-4"><label>Observações Técnicas (OBS)</label><textarea id="prog-obs" rows="2" placeholder="Notas sobre etapas ou restrições..."></textarea></div>
+                    </div>
+                    <div style="margin-top:20px;"><button type="submit" class="btn-action btn-blue">💾 Registrar Atendimento</button></div>
+                </form>
+            </div>
+
+            <!-- TABELA DINÂMICA (A PLANILHA VIVA) -->
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:15px;">
+                    <h3 style="font-weight: 800; color: var(--primary);">Filtros de Busca Avançada</h3>
+                </div>
+                
+                <!-- FILTROS IGUAIS ÀS DIVISÕES DO EXCEL -->
+                <div class="deep-filters" style="margin-bottom:0; background:#fafafa; padding:15px;">
+                    <div>
+                        <label>Filtrar Supervisor</label>
+                        <select id="filter-prog-supervisor" onchange="renderProgramacao();">
+                            <option value="Todos">-- Todos os Supervisores --</option>
+                            <option value="Evelyne - SUL">Evelyne - SUL</option>
+                            <option value="Marcelo - NORTE">Marcelo - NORTE</option>
+                            <option value="Soraya - SUL">Soraya - SUL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Filtrar Mês</label>
+                        <select id="filter-prog-mes" onchange="renderProgramacao();">
+                            <option value="Todos">-- Todos os Meses --</option>
+                            <option value="JUNHO" selected>Junho</option>
+                            <option value="JULHO">Julho</option>
+                        </select>
+                    </div>
+                    <div><label>Buscar Cliente</label><input type="text" id="filter-prog-cliente" placeholder="Nome..." oninput="renderProgramacao();"></div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Supervisor</th>
+                                <th>Mês</th>
+                                <th>Cliente</th>
+                                <th>Consultora</th>
+                                <th>Conferente</th>
+                                <th>P.T.</th>
+                                <th>Ambiente</th>
+                                <th>Prazo Final</th>
+                                <th>Lote</th>
+                                <th>Vistoria</th>
+                                <th>Data Entrega</th>
+                                <th>Valor</th>
+                                <th>KG</th>
+                                <th>OBS</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="target-tabela-programacao"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- COMPONENTE DE IMPRESSÃO / PDF -->
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
+                <h3 style="font-weight: 800; margin-bottom: 10px; color: var(--primary);">Extrator de Relatório da Programação</h3>
+                <p style="font-size:0.85rem; color:#64748b; margin-bottom:20px;">Gera a visualização limpa estruturada para exportar em PDF ou realizar impressões físicas.</p>
+                <div id="target-relatorio-programacao-print" class="report-box"></div>
+            </div>
+        </div>
+
+        <!-- ABA ASTECAS -->
+        <div id="tab-astecas" class="view-panel">
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px;">
+                <h3 style="margin-bottom:15px; font-weight:800;">Registrar Nova Asteca (OC)</h3>
+                <form id="form-asteca" onsubmit="salvarNovaAsteca(event)">
+                    <div class="form-grid">
+                        <div class="form-group span-2"><label>Cliente</label><input type="text" id="ast-cliente" required></div>
+                        <div class="form-group"><label>Nº OC</label><input type="text" id="ast-oc" required></div>
+                        <div class="form-group"><label>Previsão Embarque</label><input type="date" id="ast-embarque" required></div>
+                        <div class="form-group span-4"><label>Detalhamento Técnico</label><textarea id="ast-detalhe" rows="2" required></textarea></div>
+                    </div>
+                    <button type="submit" class="btn-action btn-blue" style="margin-top:15px;">💾 Salvar OC</button>
+                </form>
+            </div>
+            <div style="background: white; padding:20px; border-radius:10px; border:1px solid var(--border);"><table class="data-table"><thead><tr><th>Cliente</th><th>OC</th><th>Previsão</th><th>Ação</th></tr></thead><tbody id="target-tabela-astecas"></tbody></table></div>
+        </div>
+
+        <!-- ABA VIAGENS -->
+        <div id="tab-viagens" class="view-panel">
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px;">
+                <h3 style="margin-bottom:15px; font-weight:800;">Programar Viagem Técnica</h3>
+                <form id="form-viagem" onsubmit="salvarNovaViagem(event)">
+                    <div class="form-grid">
+                        <div class="form-group span-2"><label>Profissional / Técnico</label><input type="text" id="via-tecnico" required></div>
+                        <div class="form-group"><label>Destino</label><input type="text" id="via-destino" required></div>
+                        <div class="form-group"><label>Diárias</label><input type="number" id="via-diarias" required></div>
+                    </div>
+                    <button type="submit" class="btn-action btn-blue" style="margin-top:15px;">✈️ Agendar Viagem</button>
+                </form>
+            </div>
+            <div style="background: white; padding:20px; border-radius:10px; border:1px solid var(--border);"><table class="data-table"><thead><tr><th>Técnico</th><th>Destino</th><th>Diárias</th><th>Ação</th></tr></thead><tbody id="target-tabela-viagens"></tbody></table></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        const ADMIN_CONFIG = { user: "admin", pass: "123" };
+        
+        // BASE DE DADOS SIMULADA EXTRAPOLADA DO SEU PRINT (image_ed6b42.png)
+        let dbProgramacao = JSON.parse(localStorage.getItem('bonttempo_prog_v9')) || [
+            { id: 1, supervisor: "Evelyne - SUL", mes: "JUNHO", cliente: "Helen Iglesias", consultora: "Daniela Miotto", conferente: "Rodrigo", pt: "OK", ambiente: "Gourmet", prazo: "28/06/2026", lote: "07/05/2026", vistoria: "22/06/2026", entrega: "29/06/2026", valor: "R$ 327.000,00", kg: "2535", obs: "" },
+            { id: 2, supervisor: "Evelyne - SUL", mes: "JUNHO", cliente: "Sandro Apogeo", consultora: "Fabiana", conferente: "Jose Ricardo", pt: "", ambiente: "completo", prazo: "21/06/2026", lote: "07/05/2026", vistoria: "03/06/2026", entrega: "24/06/2026", valor: "R$ 1.445.232,87", kg: "13TON", obs: "1ª e (2ª etapa atencipação de 8 dias p. final 21/0)" },
+            { id: 3, supervisor: "Evelyne - SUL", mes: "JUNHO", cliente: "Wanderlene Firmino", consultora: "Tatiana", conferente: "Jesse", pt: "", ambiente: "Gourmet", prazo: "15/06/2026", lote: "07/05/2026", vistoria: "15/06/2026", entrega: "15/06/2026", valor: "R$ 112.298,40", kg: "1395", obs: "1ª Etapa" },
+            { id: 4, supervisor: "Marcelo - NORTE", mes: "JUNHO", cliente: "Gabriel Bernadt", consultora: "Lucila", conferente: "Suelen", pt: "", ambiente: "Piso inferior", prazo: "20/06/2026", lote: "07/05/2026", vistoria: "OK", entrega: "Confirmar data", valor: "R$ 3.000,00", kg: "4,5", obs: "2ª etapa - VER SE OBRA TA APTA" },
+            { id: 5, supervisor: "Marcelo - NORTE", mes: "JUNHO", cliente: "Seeds (CAMILA) Sinop", consultora: "Lucila", conferente: "Jose Ricardo", pt: "OK", ambiente: "Living", prazo: "21/05/2026", lote: "06/05/2026", vistoria: "26/05/2026", entrega: "10/06/2026", valor: "R$ 183.405,00", kg: "1088", obs: "" }
+        ];
+        
+        let listaAstecas = JSON.parse(localStorage.getItem('bonttempo_astecas_v9')) || [];
+        let listaViagens = JSON.parse(localStorage.getItem('bonttempo_viagens_v9')) || [];
+
+        function executarLogin() {
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value;
+            if (u === ADMIN_CONFIG.user && p === ADMIN_CONFIG.pass) {
+                currentUser = { tipo: 'admin', nome: 'Administrador' };
+                document.getElementById('view-login').style.display = 'none';
+                ajustarPermissoesTela();
+                switchTab('dashboard');
+            } else { alert("Acesso inválido!"); }
+        }
+
+        function executarLogout() { currentUser = null; document.getElementById('view-login').style.display = 'flex'; }
+
+        function ajustarPermissoesTela() {
+            document.getElementById('user-display-badge').innerText = `Logado como: ${currentUser.nome}`;
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+            filtrarDashboard();
+            renderProgramacao();
+        }
+
+        function filtrarDashboard() {
+            const container = document.getElementById('target-cards-gerais'); if(!container) return; container.innerHTML = '';
+            const fCliente = document.getElementById('search-cliente').value.toLowerCase();
+            let filtrados = dbProgramacao.filter(i => i.cliente.toLowerCase().includes(fCliente));
+            
+            document.getElementById('w-total-obras').innerText = filtrados.length;
+            document.getElementById('w-peso-total').innerText = `${filtrados.length * 420} kg`;
+
+            filtrados.forEach(i => {
+                container.innerHTML += `
+                    <div class="system-card">
+                        <div class="card-meta-line"><span class="badge-tag badge-tech">${i.supervisor}</span><span>📅 Entrega: ${i.entrega}</span></div>
+                        <div class="card-title">${i.cliente}</div>
+                        <div class="card-detail">📐 Ambiente: <strong>${i.ambiente}</strong></div>
+                        <div class="card-detail">💼 Consultora: ${i.consultora} | Conferente: ${i.conferente}</div>
+                        <div class="card-obs"><strong>OBS:</strong> ${i.obs || 'Sem observações lançadas.'}</div>
+                    </div>`;
+            });
+        }
+
+        // SALVAR NOVO REGISTRO BASEADO NOS SEUS TOPICOS
+        function salvarNovaProgramacao(e) {
+            e.preventDefault();
+            const novoItem = {
+                id: Date.now(),
+                supervisor: document.getElementById('prog-supervisor').value,
+                mes: document.getElementById('prog-mes').value,
+                cliente: document.getElementById('prog-cliente').value,
+                consultora: document.getElementById('prog-consultora').value,
+                conferente: document.getElementById('prog-conferente').value,
+                pt: document.getElementById('prog-pt').value,
+                ambiente: document.getElementById('prog-ambiente').value,
+                prazo: document.getElementById('prog-prazo').value,
+                lote: document.getElementById('prog-lote').value,
+                vistoria: document.getElementById('prog-vistoria').value,
+                entrega: document.getElementById('prog-entrega').value,
+                valor: document.getElementById('prog-valor').value,
+                kg: document.getElementById('prog-kg').value,
+                obs: document.getElementById('prog-obs').value
+            };
+            dbProgramacao.push(novoItem);
+            localStorage.setItem('bonttempo_prog_v9', JSON.stringify(dbProgramacao));
+            document.getElementById('form-programacao').reset();
+            renderProgramacao();
+            filtrarDashboard();
+        }
+
+        // RENDERIZAR TABELA COMPLETA COM OS FILTROS DE SUPERVISOR E MÊS
+        function renderProgramacao() {
+            const tbody = document.getElementById('target-tabela-programacao'); if(!tbody) return; tbody.innerHTML = '';
+            const fSupervisor = document.getElementById('filter-prog-supervisor').value;
+            const fMes = document.getElementById('filter-prog-mes').value;
+            const fCliente = document.getElementById('filter-prog-cliente').value.toLowerCase();
+
+            let filtrados = dbProgramacao.filter(i => {
+                return (fSupervisor === "Todos" || i.supervisor === fSupervisor) &&
+                       (fMes === "Todos" || i.mes === fMes) &&
+                       (i.cliente.toLowerCase().includes(fCliente));
+            });
+
+            filtrados.forEach(i => {
+                tbody.innerHTML += `<tr>
+                    <td><span class="badge-tag badge-tech">${i.supervisor}</span></td>
+                    <td><strong>${i.mes}</strong></td>
+                    <td>${i.cliente}</td>
+                    <td>${i.consultora}</td>
+                    <td>${i.conferente}</td>
+                    <td><mark style="background:#dcfce7;padding:2px 5px;border-radius:3px;">${i.pt || '-'}</mark></td>
+                    <td>${i.ambiente}</td>
+                    <td>${i.prazo}</td>
+                    <td>${i.lote}</td>
+                    <td>${i.vistoria}</td>
+                    <td>${i.entrega}</td>
+                    <td><strong>${i.valor || '-'}</strong></td>
+                    <td>${i.kg}</td>
+                    <td class="wrap-comment"><span style="font-size:0.8rem;color:#475569;">${i.obs || '-'}</span></td>
+                    <td><button class="btn-action btn-red" style="padding:4px 8px;" onclick="deletarProgramacao(${i.id})">Remover</button></td>
+                </tr>`;
+            });
+
+            gerarRelatorioPrintFixo(filtrados);
+        }
+
+        function deletarProgramacao(id) {
+            dbProgramacao = dbProgramacao.filter(item => item.id !== id);
+            localStorage.setItem('bonttempo_prog_v9', JSON.stringify(dbProgramacao));
+            renderProgramacao();
+            filtrarDashboard();
+        }
+
+        // GERAR O DOCUMENTO PRONTO PARA SALVAR EM PDF OU IMPRIMIR
+        function gerarRelatorioPrintFixo(dados) {
+            const target = document.getElementById('target-relatorio-programacao-print'); if(!target) return;
+            if(dados.length === 0) {
+                target.innerHTML = '<p style="color:#64748b; text-align:center;">Nenhum registro para exibir no relatório.</p>';
+                return;
+            }
+            let linhas = '';
+            dados.forEach(i => {
+                linhas += `<tr>
+                    <td>${i.supervisor}</td>
+                    <td>${i.cliente}</td>
+                    <td>${i.ambiente}</td>
+                    <td>${i.prazo}</td>
+                    <td>${i.vistoria}</td>
+                    <td>${i.entrega}</td>
+                    <td>${i.kg}</td>
+                    <td>${i.obs || '-'}</td>
+                </tr>`;
+            });
+            target.innerHTML = `
+                <div class="report-header">
+                    <h2 style="color:var(--primary); font-weight:800;">PROGRAMAÇÃO DE MONTAGEM COMPLETA - BONTEMPO</h2>
+                    <p style="font-size:0.85rem; color:#64748b; margin-top:5px;">Espelho de Controle Operacional por Supervisor e Fluxo de Entrega</p>
+                </div>
+                <table class="data-table" style="width:100%; min-width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Supervisor</th>
+                            <th>Cliente</th>
+                            <th>Ambiente</th>
+                            <th>Prazo Final</th>
+                            <th>Vistoria</th>
+                            <th>Data Entrega</th>
+                            <th>KG</th>
+                            <th>Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>${linhas}</tbody>
+                </table>
+                <div style="margin-top:25px; display:flex; justify-content:flex-end;">
+                    <button class="btn-action btn-blue btn-print-report" onclick="window.print()">🖨️ Extrair em PDF / Imprimir</button>
+                </div>`;
+        }
+
+        function salvarNovaAsteca(e) { e.preventDefault(); listaAstecas.push({ id:Date.now(), cliente:document.getElementById('ast-cliente').value, oc:document.getElementById('ast-oc').value, embarque:document.getElementById('ast-embarque').value, detalhe:document.getElementById('ast-detalhe').value }); localStorage.setItem('bonttempo_astecas_v9', JSON.stringify(listaAstecas)); document.getElementById('form-asteca').reset(); renderAstecas(); }
+        function renderAstecas() { const tbody = document.getElementById('target-tabela-astecas'); tbody.innerHTML=''; listaAstecas.forEach(i=>{ tbody.innerHTML+=`<tr><td>${i.cliente}</td><td>${i.oc}</td><td>${i.embarque}</td><td><button class="btn-action btn-red" onclick="listaAstecas=listaAstecas.filter(a=>a.id!=${i.id});localStorage.setItem('bonttempo_astecas_v9',JSON.stringify(listaAstecas));renderAstecas();">Remover</button></td></tr>`; }); }
+        function salvarNovaViagem(e) { e.preventDefault(); listaViagens.push({ id:Date.now(), tecnico:document.getElementById('via-tecnico').value, destino:document.getElementById('via-destino').value, diarias:document.getElementById('via-diarias').value }); localStorage.setItem('bonttempo_viagens_v9', JSON.stringify(listaViagens)); document.getElementById('form-viagem').reset(); renderViagens(); }
+        function renderViagens() { const tbody = document.getElementById('target-tabela-viagens'); tbody.innerHTML=''; listaViagens.forEach(i=>{ tbody.innerHTML+=`<tr><td>${i.tecnico}</td><td>${i.destino}</td><td>${i.diarias}</td><td><button class="btn-action btn-red" onclick="listaViagens=listaViagens.filter(v=>v.id!=${i.id});localStorage.setItem('bonttempo_viagens_v9',JSON.stringify(listaViagens));renderViagens();">Remover</button></td></tr>`; }); }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            if(document.getElementById(`nav-${tabId}`)) document.getElementById(`nav-${tabId}`).classList.add('active');
+            if(tabId === 'dashboard') filtrarDashboard();
+            if(tabId === 'programacao-completa') renderProgramacao();
+            if(tabId === 'astecas') renderAstecas();
+            if(tabId === 'viagens') renderViagens();
+        }
+    </script>
+</body>
+</html>
