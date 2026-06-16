@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão Integrada</title>
+    <!-- Tailwind CSS para estilização moderna -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos adicionais para ocultar elementos na impressão da O.S. */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printArea, #printArea * {
+                visibility: visible;
+            }
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen">
+
+    <!-- ========================================================= -->
+    <!-- TELA DE LOGIN                                             -->
+    <!-- ========================================================= -->
+    <div id="loginPage" class="flex items-center justify-center min-h-screen bg-slate-900 px-4">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300">
+            <div class="text-center mb-8">
+                <div class="bg-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg">
+                    <i class="fas fa-boxes-stacked"></i>
+                </div>
+                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Painel de Gestão</h2>
+                <p class="text-sm text-gray-500 mt-2">Faça login para acessar o sistema</p>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Usuário</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <input type="text" id="username" required class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="admin">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Senha</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" required class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="••••••••">
+                    </div>
+                </div>
+                <div id="loginError" class="text-red-500 text-sm font-medium hidden text-center">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Usuário ou senha incorretos.
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Entrar <i class="fas fa-sign-in-alt ml-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PAINEL PRINCIPAL (MÓDULO DO SISTEMA)                      -->
+    <!-- ========================================================= -->
+    <div id="mainDashboard" class="hidden min-h-screen flex flex-col md:flex-row">
+        
+        <!-- MENU LATERAL -->
+        <aside class="w-full md:w-64 bg-slate-800 text-slate-100 flex flex-col shadow-xl">
+            <div class="p-5 bg-slate-900 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-cubes text-indigo-400 text-2xl"></i>
+                    <span class="font-bold text-lg tracking-wider">GESTOR PRO</span>
+                </div>
+                <button onclick="handleLogout()" class="text-slate-400 hover:text-red-400 transition" title="Sair do sistema">
+                    <i class="fas fa-power-off text-lg"></i>
+                </button>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-indigo-600 text-white font-medium transition text-left">
+                    <i class="fas fa-chart-pie w-5"></i> <span>Dashboard Geral</span>
+                </button>
+                <button onclick="switchTab('agenda')" id="btn-agenda" class="tab-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-700 hover:text-white font-medium transition text-left">
+                    <i class="fas fa-calendar-alt w-5"></i> <span>Agenda & O.S.</span>
+                </button>
+            </nav>
+            
+            <div class="p-4 bg-slate-900 text-xs text-slate-500 text-center border-t border-slate-800">
+                &copy; 2026 Gestor Pro. Todos os direitos reservados.
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="flex-1 p-6 md:p-8 overflow-x-hidden">
+            
+            <!-- ABAS DO PAINEL -->
+            <div class="max-w-7xl mx-auto">
+                
+                <!-- ABA 1: DASHBOARD GERAL -->
+                <section id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-4 border-b border-gray-200 gap-4">
+                        <div>
+                            <h1 class="text-3xl font-extrabold text-gray-900">Dashboard Geral</h1>
+                            <p class="text-sm text-gray-500 mt-1">Visão geral e indicadores das operações</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Cards de Resumo -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center space-x-4">
+                            <div class="p-4 bg-green-100 text-green-600 rounded-lg text-2xl"><i class="fas fa-check-double"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Realizados Total</p>
+                                <p id="count-total" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center space-x-4">
+                            <div class="p-4 bg-amber-100 text-amber-600 rounded-lg text-2xl"><i class="fas fa-hourglass-half"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Realizados Parcial</p>
+                                <p id="count-parcial" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center space-x-4">
+                            <div class="p-4 bg-red-100 text-red-600 rounded-lg text-2xl"><i class="fas fa-exclamation-triangle"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Pendente de Peças</p>
+                                <p id="count-pendente" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center space-x-4">
+                            <div class="p-4 bg-indigo-100 text-indigo-600 rounded-lg text-2xl"><i class="fas fa-list-check"></i></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Total de Agendamentos</p>
+                                <p id="count-geral" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ABA 2: AGENDA DE ASSISTÊNCIAS & O.S. -->
+                <section id="tab-agenda" class="tab-content space-y-6 hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-4 border-b border-gray-200 gap-4">
+                        <div>
+                            <h1 class="text-3xl font-extrabold text-gray-900">🛠️ Agenda de Assistências & O.S.</h1>
+                            <p class="text-sm text-gray-500 mt-1">Gerencie os agendamentos técnicos, ordens de serviços e o pós-visita</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                        <!-- Formulário de Agendamento -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-1 space-y-4">
+                            <h3 class="text-lg font-bold text-gray-800 border-b pb-2"><i class="fas fa-calendar-plus text-indigo-600 mr-2"></i>Novo Agendamento</h3>
+                            <form id="agendaForm" onsubmit="saveAgendamento(event)" class="space-y-4">
+                                <input type="hidden" id="agendaIndex">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                                    <input type="text" id="agendaCliente" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Serviço / Assistência</label>
+                                    <textarea id="agendaServico" required rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="Descreva os reparos ou itens pendentes..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Técnico Responsável</label>
+                                    <input type="text" id="agendaTecnico" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Data da Visita</label>
+                                    <input type="date" id="agendaData" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status Pós-Visita</label>
+                                    <select id="agendaStatus" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                                        <option value="🟢 Realizado Total">🟢 Realizado Total</option>
+                                        <option value="🟡 Realizado Parcial">🟡 Realizado Parcial</option>
+                                        <option value="🔴 Pendente de Peças">🔴 Pendente de Peças</option>
+                                    </select>
+                                </div>
+                                <div class="flex space-x-2 pt-2">
+                                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition shadow">Salvar Registro</button>
+                                    <button type="button" onclick="clearAgendaForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition">Limpar</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Lista de Agendamentos Cadastrados -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 lg:col-span-2 space-y-4">
+                            <h3 class="text-lg font-bold text-gray-800 border-b pb-2"><i class="fas fa-list text-indigo-600 mr-2"></i>Registros e Ordens de Serviço</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            <th class="px-4 py-3">Data</th>
+                                            <th class="px-4 py-3">Cliente</th>
+                                            <th class="px-4 py-3">Técnico</th>
+                                            <th class="px-4 py-3">Status Pós-Visita</th>
+                                            <th class="px-4 py-3 text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="agendaTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                                        <!-- Carregado via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- ÁREA DE IMPRESSÃO DA ORDEM DE SERVIÇO (O.S.)               -->
+    <!-- ========================================================= -->
+    <div id="printArea" class="hidden p-8 max-w-3xl mx-auto bg-white text-black">
+        <!-- Cabeçalho -->
+        <div class="flex justify-between items-center border-b-2 border-black pb-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-black tracking-tight uppercase">Ordem de Serviço (O.S.)</h1>
+                <p class="text-xs text-gray-600">Sistema de Gestão Integrada Residencial</p>
+            </div>
+            <div class="text-right text-xs">
+                <p class="font-bold">Emissão:</p>
+                <p id="osEmitidoData"></p>
+            </div>
+        </div>
+
+        <!-- Dados Modulares -->
+        <div class="grid grid-cols-2 gap-4 border border-black p-4 rounded mb-6 text-sm">
+            <div>
+                <p class="font-bold uppercase text-xs text-gray-600 mb-1">Cliente</p>
+                <p id="osCliente" class="font-medium"></p>
+            </div>
+            <div>
+                <p class="font-bold uppercase text-xs text-gray-600 mb-1">Data Agendada</p>
+                <p id="osData" class="font-medium"></p>
+            </div>
+            <div class="col-span-2 border-t border-gray-300 pt-2">
+                <p class="font-bold uppercase text-xs text-gray-600 mb-1">Técnico Responsável</p>
+                <p id="osTecnico" class="font-medium"></p>
+            </div>
+        </div>
+
+        <!-- Descrição do Serviço -->
+        <div class="border border-black p-4 rounded mb-6 min-h-[150px]">
+            <p class="font-bold uppercase text-xs text-gray-600 border-b pb-1 mb-2">Descrição da Assistência / Serviço</p>
+            <p id="osServico" class="text-sm leading-relaxed whitespace-pre-wrap"></p>
+        </div>
+
+        <!-- Validação de Status Pós-Visita -->
+        <div class="border border-black p-4 rounded mb-8">
+            <p class="font-bold uppercase text-xs text-gray-600 border-b pb-1 mb-3">Status de Conclusão (Pós-Visita)</p>
+            <div class="grid grid-cols-3 gap-2 text-xs font-bold text-center">
+                <div id="osStatusTotal" class="border p-2 rounded text-gray-400 border-gray-300">🟢 Realizado Total</div>
+                <div id="osStatusParcial" class="border p-2 rounded text-gray-400 border-gray-300">🟡 Realizado Parcial</div>
+                <div id="osStatusPendente" class="border p-2 rounded text-gray-400 border-gray-300">🔴 Pendente de Peças</div>
+            </div>
+        </div>
+
+        <!-- Campo de Assinatura -->
+        <div class="grid grid-cols-2 gap-8 pt-12 text-center text-xs">
+            <div>
+                <div class="border-t border-black w-full mx-auto mb-1"></div>
+                <p class="font-bold">Assinatura do Técnico</p>
+            </div>
+            <div>
+                <div class="border-t border-black w-full mx-auto mb-1"></div>
+                <p class="font-bold">Assinatura do Cliente</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- JAVASCRIPT CONTROLLER                                     -->
+    <!-- ========================================================= -->
+    <script>
+        // Array global para persistência local (LocalStorage)
+        let agendamentos = JSON.parse(localStorage.getItem('gestor_agendamentos')) || [];
+
+        // Inicialização do app
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAgendaTable();
+            updateDashboardMetrics();
+        });
+
+        // 1. Controle de Login / Autenticação
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (user === 'admin' && pass === 'admin') {
+                errorDiv.classList.add('hidden');
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
+            } else {
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('mainDashboard').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+        }
+
+        // 2. Navegação entre Abas (Menu Lateral)
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('text-slate-400', 'hover:bg-slate-700', 'hover:text-white');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabName}`);
+            activeBtn.classList.add('bg-indigo-600', 'text-white');
+            activeBtn.classList.remove('text-slate-400', 'hover:bg-slate-700', 'hover:text-white');
+        }
+
+        // 3. Gestão de Agendamentos & Assistências
+        function saveAgendamento(e) {
+            e.preventDefault();
+            const idx = document.getElementById('agendaIndex').value;
+            
+            const item = {
+                cliente: document.getElementById('agendaCliente').value,
+                servico: document.getElementById('agendaServico').value,
+                tecnico: document.getElementById('agendaTecnico').value,
+                data: document.getElementById('agendaData').value,
+                status: document.getElementById('agendaStatus').value
+            };
+
+            if (idx === "") {
+                agendamentos.push(item);
+            } else {
+                agendamentos[parseInt(idx)] = item;
+            }
+
+            localStorage.setItem('gestor_agendamentos', JSON.stringify(agendamentos));
+            clearAgendaForm();
+            renderAgendaTable();
+            updateDashboardMetrics();
+        }
+
+        function clearAgendaForm() {
+            document.getElementById('agendaIndex').value = "";
+            document.getElementById('agendaForm').reset();
+        }
+
+        function renderAgendaTable() {
+            const tbody = document.getElementById('agendaTableBody');
+            tbody.innerHTML = "";
+
+            if(agendamentos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-gray-400"><i class="fas fa-folder-open text-2xl block mb-2"></i>Nenhum agendamento registrado</td></tr>`;
+                return;
+            }
+
+            // Ordena os agendamentos pela data de forma decrescente
+            const sorted = [...agendamentos].map((item, originalIndex) => ({...item, originalIndex}));
+            sorted.sort((a,b) => new Date(b.data) - new Date(a.data));
+
+            sorted.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                
+                // Formatação simples da data (AAAA-MM-DD para DD/MM/AAAA)
+                const [ano, mes, dia] = item.data.split('-');
+                const dataFormatada = `${dia}/${mes}/${ano}`;
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-medium text-gray-900">${dataFormatada}</td>
+                    <td class="px-4 py-3 font-semibold">${item.cliente}</td>
+                    <td class="px-4 py-3 text-gray-600">${item.tecnico}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 rounded text-xs font-bold bg-gray-100">${item.status}</span></td>
+                    <td class="px-4 py-3 text-right space-x-1 whitespace-nowrap">
+                        <button onclick="printOS(${item.originalIndex})" class="text-blue-600 hover:bg-blue-50 p-2 rounded" title="Imprimir O.S."><i class="fas fa-print"></i></button>
+                        <button onclick="editAgendamento(${item.originalIndex})" class="text-amber-600 hover:bg-amber-50 p-2 rounded" title="Editar"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteAgendamento(${item.originalIndex})" class="text-red-600 hover:bg-red-50 p-2 rounded" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editAgendamento(index) {
+            const item = agendamentos[index];
+            document.getElementById('agendaIndex').value = index;
+            document.getElementById('agendaCliente').value = item.cliente;
+            document.getElementById('agendaServico').value = item.servico;
+            document.getElementById('agendaTecnico').value = item.tecnico;
+            document.getElementById('agendaData').value = item.data;
+            document.getElementById('agendaStatus').value = item.status;
+            
+            // Foca suavemente no formulário
+            document.getElementById('agendaCliente').focus();
+        }
+
+        function deleteAgendamento(index) {
+            if(confirm("Tem certeza que deseja remover este agendamento técnico?")) {
+                agendamentos.splice(index, 1);
+                localStorage.setItem('gestor_agendamentos', JSON.stringify(agendamentos));
+                renderAgendaTable();
+                updateDashboardMetrics();
+            }
+        }
+
+        // 4. Geração de Relatório de Ordem de Serviço (O.S.) Integrada
+        function printOS(index) {
+            const item = agendamentos[index];
+            
+            // Popula os dados na área de impressão estruturada
+            document.getElementById('osCliente').innerText = item.cliente;
+            document.getElementById('osTecnico').innerText = item.tecnico;
+            document.getElementById('osServico').innerText = item.servico;
+            
+            const [ano, mes, dia] = item.data.split('-');
+            document.getElementById('osData').innerText = `${dia}/${mes}/${ano}`;
+            document.getElementById('osEmitidoData').innerText = new Date().toLocaleDateString('pt-BR');
+
+            // Reseta estilos visuais dos status na folha de O.S.
+            const sTotal = document.getElementById('osStatusTotal');
+            const sParcial = document.getElementById('osStatusParcial');
+            const sPendente = document.getElementById('osStatusPendente');
+
+            sTotal.className = "border p-2 rounded text-gray-300 border-gray-200";
+            sParcial.className = "border p-2 rounded text-gray-300 border-gray-200";
+            sPendente.className = "border p-2 rounded text-gray-300 border-gray-200";
+
+            // Ativa visualmente o status correspondente
+            if (item.status.includes("Total")) {
+                sTotal.className = "border-2 p-2 rounded text-green-700 border-green-600 bg-green-50 font-black";
+            } else if (item.status.includes("Parcial")) {
+                sParcial.className = "border-2 p-2 rounded text-amber-700 border-amber-600 bg-amber-50 font-black";
+            } else if (item.status.includes("Peças")) {
+                sPendente.className = "border-2 p-2 rounded text-red-700 border-red-600 bg-red-50 font-black";
+            }
+
+            // Invoca o gerenciador nativo de impressão do navegador utilizando as regras CSS de @media print
+            window.print();
+        }
+
+        // 5. Atualização de Métricas do Dashboard Dinamicamente
+        function updateDashboardMetrics() {
+            let total = 0;
+            let parcial = 0;
+            let pendente = 0;
+
+            agendamentos.forEach(item => {
+                if (item.status.includes("Total")) total++;
+                else if (item.status.includes("Parcial")) parcial++;
+                else if (item.status.includes("Peças")) pendente++;
+            });
+
+            document.getElementById('count-total').innerText = total;
+            document.getElementById('count-parcial').innerText = parcial;
+            document.getElementById('count-pendente').innerText = pendente;
+            document.getElementById('count-geral').innerText = agendamentos.length;
+        }
+    </script>
+</body>
+</html>
