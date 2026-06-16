@@ -198,7 +198,6 @@
                     </div>
                     <div style="margin-top:15px; display:flex; gap:10px;">
                         <button type="submit" class="btn-action btn-blue">💾 Salvar Ordem de Compra</button>
-                        <button type="button" id="btn-cancel-ast" class="btn-action" style="display:none;" onclick="cancelarEdicaoAsteca()">Cancelar Edição</button>
                     </div>
                 </form>
             </div>
@@ -226,7 +225,8 @@
                     <input type="hidden" id="via-id">
                     <div class="form-grid">
                         <div class="form-group"><label>Técnico em Viagem</label><select id="via-tecnico" required></select></div>
-                        <div class="form-group"><label>Cliente / Destino</label><input type="text" id="via-cliente" placeholder="Ex: Showroom Clientes Rondonópolis" required></div>
+                        <div class="form-group"><label>Cidade de Origem</label><input type="text" id="via-origem" placeholder="Ex: Rondonópolis - MT" required></div>
+                        <div class="form-group"><label>Cidade de Destino / Cliente</label><input type="text" id="via-destino" placeholder="Ex: Cuiabá - MT (Cliente João)" required></div>
                         <div class="form-group"><label>Data de Saída</label><input type="date" id="via-saida" required></div>
                         <div class="form-group"><label>Data de Retorno</label><input type="date" id="via-retorno" required></div>
                         <div class="form-group"><label>Qtd de Diárias</label><input type="number" id="via-diarias" min="1" required></div>
@@ -235,7 +235,6 @@
                     </div>
                     <div style="margin-top:15px; display:flex; gap:10px;">
                         <button type="submit" class="btn-action btn-blue">✈️ Agendar e Validar Viagem</button>
-                        <button type="button" id="btn-cancel-via" class="btn-action" style="display:none;" onclick="cancelarEdicaoViagem()">Cancelar Edição</button>
                     </div>
                 </form>
             </div>
@@ -243,7 +242,7 @@
             <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
                 <h3 style="font-weight: 800; margin-bottom: 15px; color: var(--primary);">Escala Ativa de Deslocamentos</h3>
                 <table class="data-table">
-                    <thead><tr><th>Técnico</th><th>Cliente / Destino</th><th>Período</th><th>Diárias</th><th>Vexpenses</th><th>Hotel</th><th>Ações</th></tr></thead>
+                    <thead><tr><th>Técnico</th><th>Origem</th><th>Destino / Cliente</th><th>Período</th><th>Diárias</th><th>Vexpenses</th><th>Hotel</th><th>Ações</th></tr></thead>
                     <tbody id="target-tabela-viagens"></tbody>
                 </table>
             </div>
@@ -271,7 +270,6 @@
         <div id="tab-templates-tasks" class="view-panel">
             <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
                 <h3 style="margin-bottom: 5px; font-weight: 800; color: var(--primary);">Modelos Rápidos de Atividades (Templates)</h3>
-                <p style="font-size:0.85rem; color:#64748b; margin-bottom:15px;">Clique em um modelo rápido abaixo para preencher o formulário automaticamente:</p>
                 <div class="template-btn-box">
                     <div class="template-badge-click" onclick="aplicarTemplate('Cobrar fábrica sobre atraso de OC/Asteca')">🏭 Cobrar Fábrica (Asteca)</div>
                     <div class="template-badge-click" onclick="aplicarTemplate('Fazer contato com cliente para agendamento técnico')">📞 Agendar Cliente</div>
@@ -282,21 +280,15 @@
 
                 <h3 id="title-form-tarefa" style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">Cadastrar Nova Atividade / Lembrete</h3>
                 <form id="form-tarefa" onsubmit="salvarNovaTarefa(event)">
-                    <input type="hidden" id="tar-id">
                     <div class="form-grid">
-                        <div class="form-group full"><label>Descrição da Atividade</label><input type="text" id="tar-descricao" placeholder="Ex: Entrar em contato com o cliente X para alinhar pendência..." required></div>
+                        <div class="form-group full"><label>Descrição da Atividade</label><input type="text" id="tar-descricao" required></div>
                         <div class="form-group"><label>Data Limite de Execução</label><input type="date" id="tar-data" required></div>
                         <div class="form-group">
                             <label>Prioridade</label>
-                            <select id="tar-prioridade">
-                                <option value="Normal">Normal</option>
-                                <option value="Alta">Alta Urgência</option>
-                            </select>
+                            <select id="tar-prioridade"><option value="Normal">Normal</option><option value="Alta">Alta Urgência</option></select>
                         </div>
                     </div>
-                    <div style="margin-top:15px; display:flex; gap:10px;">
-                        <button type="submit" class="btn-action btn-blue">📅 Agendar Atividade</button>
-                    </div>
+                    <div style="margin-top:15px; display:flex; gap:10px;"><button type="submit" class="btn-action btn-blue">📅 Agendar Atividade</button></div>
                 </form>
             </div>
 
@@ -317,7 +309,7 @@
         <div id="tab-reports" class="view-panel">
             <h3 style="font-weight:700; margin-bottom: 20px;">Painel de Auditoria de Ponto</h3>
             <table class="data-table">
-                <thead><tr><th>Cliente</th><th>Tipo</th><th>Técnico</th><th>Data</th><th>Entrada</th><th>Saída</th><th>Status</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Cliente</th><th>Tipo</th><th>Técnico</th><th>Data</th><th>Entrada</th><th>Saída</th><th>Status</th></tr></thead>
                 <tbody id="target-tabela-relatorios"></tbody>
             </table>
         </div>
@@ -325,10 +317,7 @@
         <div id="tab-settings" class="view-panel">
             <div style="background: #f1f5f9; padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
                 <h3 style="margin-bottom: 5px; font-weight: 800; color: var(--primary);">🔑 Credenciais do Administrador (Master)</h3>
-                <p style="font-size:0.85rem; color:#475569; margin-bottom:10px;">Para alterar permanentemente o Usuário e a Senha do Administrador, modifique a linha correspondente no seu código fonte antes de subir ao GitHub.</p>
-                <div style="font-size:0.9rem;">
-                    <strong>Usuário Master Atual:</strong> <code id="lbl-admin-user" style="background:white; padding:2px 6px; border-radius:4px;">admin</code>
-                </div>
+                <div style="font-size:0.9rem;"><strong>Usuário Master Atual:</strong> <code id="lbl-admin-user" style="background:white; padding:2px 6px; border-radius:4px;">admin</code></div>
             </div>
 
             <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
@@ -363,10 +352,7 @@
                     <div class="form-group full"><label>Endereço</label><input type="text" id="f-endereco" required></div>
                     <div class="form-group">
                         <label>Operação</label>
-                        <select id="f-tipo">
-                            <option value="Montagem">Montagem Padrão</option>
-                            <option value="Assistência">Assistência Técnica</option>
-                        </select>
+                        <select id="f-tipo"><option value="Montagem">Montagem Padrão</option><option value="Assistência">Assistência Técnica</option></select>
                     </div>
                     <div class="form-group"><label>Técnico Designado</label><select id="f-tecnico" required></select></div>
                     <div class="form-group"><label>Data Entrega Carga</label><input type="date" id="f-data-entrega" required></div>
@@ -385,14 +371,10 @@
 
     <script>
         let currentUser = null;
-        
-        const ADMIN_CONFIG = {
-            user: "admin", 
-            pass: "123"    
-        };
+        const ADMIN_CONFIG = { user: "admin", pass: "123" };
         
         let listaTecnicos = JSON.parse(localStorage.getItem('bonttempo_tecnicos_v8')) || JSON.parse(localStorage.getItem('bontempo_tecnicos_v8')) || [];
-        let database = JSON.parse(localStorage.getItem('bontempo_db_v8')) || [];
+        let database = JSON.parse(localStorage.getItem('bonttempo_db_v8')) || JSON.parse(localStorage.getItem('bontempo_db_v8')) || [];
         let listaAstecas = JSON.parse(localStorage.getItem('bonttempo_astecas_v8')) || JSON.parse(localStorage.getItem('bontempo_astecas_v8')) || [];
         let listaViagens = JSON.parse(localStorage.getItem('bonttempo_viagens_v8')) || JSON.parse(localStorage.getItem('bontempo_viagens_v8')) || [];
         let listaTarefas = JSON.parse(localStorage.getItem('bonttempo_tarefas_v8')) || [];
@@ -400,7 +382,6 @@
         function executarLogin() {
             const u = document.getElementById('login-username').value.trim();
             const p = document.getElementById('login-password').value;
-            
             if (u === ADMIN_CONFIG.user && p === ADMIN_CONFIG.pass) {
                 currentUser = { tipo: 'admin', nome: 'Administrador' };
             } else {
@@ -415,19 +396,14 @@
             } else { alert("Usuário ou senha incorretos!"); }
         }
 
-        function executarLogout() {
-            currentUser = null;
-            document.getElementById('view-login').style.display = 'flex';
-        }
+        function executarLogout() { currentUser = null; document.getElementById('view-login').style.display = 'flex'; }
 
         function recarregarTodosSelectsTecnicos() {
             const m1 = document.getElementById('f-tecnico');
             const m2 = document.getElementById('via-tecnico');
             const m3 = document.getElementById('report-via-tecnico');
-            
             let html = '';
             listaTecnicos.forEach(t => html += `<option value="${t.nome}">${t.nome}</option>`);
-            
             if(m1) m1.innerHTML = html || '<option value="">Nenhum técnico cadastrado</option>';
             if(m2) m2.innerHTML = html || '<option value="">Nenhum técnico cadastrado</option>';
             if(m3) m3.innerHTML = `<option value="Todos">Todos os Técnicos</option>` + html;
@@ -447,225 +423,46 @@
 
         function filtrarGeral() {
             const container = document.getElementById('target-cards-gerais');
-            if(!container) return;
-            container.innerHTML = '';
-            
+            if(!container) return; container.innerHTML = '';
             const fCliente = document.getElementById('search-cliente').value.toLowerCase();
             const fTecnico = document.getElementById('search-tecnico').value.toLowerCase();
             const fTipo = document.getElementById('search-tipo').value;
-
-            let dados = database;
-            if (currentUser && currentUser.tipo === 'tecnico') {
-                dados = database.filter(i => i.tecnico === currentUser.nome);
-            }
-
-            dados = dados.filter(item => {
-                const matchCliente = item.cliente.toLowerCase().includes(fCliente);
-                const matchTecnico = item.tecnico.toLowerCase().includes(fTecnico);
-                const matchTipo = fTipo === "" || item.tipo === fTipo;
-                return matchCliente && matchTecnico && matchTipo;
+            let dados = database.filter(item => {
+                return item.cliente.toLowerCase().includes(fCliente) && 
+                       item.tecnico.toLowerCase().includes(fTecnico) && 
+                       (fTipo === "" || item.tipo === fTipo);
             });
-
             atualizarWidgets(dados);
-
             if(dados.length === 0) {
-                container.innerHTML = '<p style="color:#64748b; grid-column:1/-1; text-align:center; padding:30px;">Nenhum atendimento real registrado ainda.</p>';
+                container.innerHTML = '<p style="color:#64748b; grid-column:1/-1; text-align:center; padding:30px;">Nenhum atendimento registrado.</p>';
                 return;
             }
-
             dados.forEach(item => {
                 const badgeClass = item.tipo === 'Montagem' ? 'badge-tech' : 'badge-assist';
-                const pTimeStr = item.checkIn ? `<div class="ponto-time">⏱️ Check-In: ${item.checkIn} ${item.checkOut ? `| Check-Out: ${item.checkOut}` : ''}</div>` : '';
-                
-                let btnPonto = '';
-                if(currentUser && currentUser.tipo === 'tecnico') {
-                    if(!item.checkIn) {
-                        btnPonto = `<button class="btn-action btn-green" onclick="registrarPonto(${item.id}, 'in')">Iniciar Serviço (Check-In)</button>`;
-                    } else if(!item.checkOut) {
-                        btnPonto = `<button class="btn-action btn-red" onclick="registrarPonto(${item.id}, 'out')">Concluir Serviço (Check-Out)</button>`;
-                    }
-                }
-
-                let botoesAdmin = '';
-                if(currentUser && currentUser.tipo === 'admin') {
-                    botoesAdmin = `
-                        <button class="btn-action" style="background:#f1f5f9; padding:5px 10px;" onclick="iniciarEdicaoOS(${item.id})">✏️ Editar</button>
-                        <button class="btn-action btn-red" style="padding:5px 10px;" onclick="apagarOSReal(${item.id})">🗑️ Excluir</button>
-                    `;
-                }
-
                 container.innerHTML += `
                     <div class="system-card">
-                        <div class="card-meta-line">
-                            <span class="badge-tag ${badgeClass}">${item.tipo}</span>
-                            <span style="color:#64748b;">📅 OS: ${item.dataMontagem}</span>
-                        </div>
+                        <div class="card-meta-line"><span class="badge-tag ${badgeClass}">${item.tipo}</span><span>📅 ${formatarDataBR(item.dataMontagem)}</span></div>
                         <div class="card-title">${item.cliente}</div>
                         <div class="card-detail">📍 Local: ${item.endereco}</div>
                         <div class="card-detail">👷 Técnico: <strong>${item.tecnico}</strong></div>
                         <div class="card-obs"><strong>Instruções:</strong> ${item.servico}</div>
-                        ${pTimeStr}
-                        <div class="ponto-controls">
-                            <div>${btnPonto}</div>
-                            <div style="display:flex; gap:5px;">${botoesAdmin}</div>
-                        </div>
                     </div>`;
             });
-        }
-
-        function registrarPonto(id, tipo) {
-            const hora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-            const item = database.find(i => i.id === id);
-            if(item) {
-                if(tipo === 'in') {
-                    item.checkIn = hora;
-                    item.statusPonto = "Em Andamento";
-                } else {
-                    item.checkOut = hora;
-                    item.statusPonto = "Finalizado";
-                }
-                localStorage.setItem('bonttempo_db_v8', JSON.stringify(database));
-                filtrarGeral();
-            }
         }
 
         function atualizarWidgets(dados) {
             if(currentUser.tipo !== 'admin') return;
             document.getElementById('w-entregas').innerText = dados.length;
             document.getElementById('w-assistencias').innerText = dados.filter(i => i.tipo === 'Assistência').length;
-            document.getElementById('w-contratos').innerText = dados.reduce((acc, curr) => acc + curr.valor, 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            const pEl = document.getElementById('w-peso');
-            if(pEl) pEl.innerText = `${dados.reduce((acc, curr) => acc + curr.peso, 0)} kg`;
-        }
-
-        function iniciarEdicaoOS(id) {
-            const item = database.find(i => i.id === id);
-            if(!item) return;
-            
-            document.getElementById('f-id').value = item.id;
-            document.getElementById('f-cliente').value = item.cliente;
-            document.getElementById('f-endereco').value = item.endereco;
-            document.getElementById('f-tipo').value = item.tipo;
-            document.getElementById('f-tecnico').value = item.tecnico;
-            document.getElementById('f-data-entrega').value = item.dataEntrega;
-            document.getElementById('f-data-montagem').value = item.dataMontagem;
-            document.getElementById('f-valor').value = item.valor;
-            document.getElementById('f-peso').value = item.peso;
-            document.getElementById('f-servico').value = item.servico;
-            
-            document.getElementById('title-modal-os').innerText = "✏️ Alterar Dados da Ordem de Serviço";
-            document.getElementById('modal-sistema').style.display = 'flex';
-        }
-
-        function apagarOSReal(id) {
-            if(confirm("Deseja realmente excluir este atendimento?")) {
-                database = database.filter(i => i.id !== id);
-                localStorage.setItem('bonttempo_db_v8', JSON.stringify(database));
-                filtrarGeral();
-            }
-        }
-
-        function salvarFormulario(e) { 
-            e.preventDefault(); 
-            const idExistente = document.getElementById('f-id').value;
-            
-            if(idExistente) {
-                const item = database.find(i => i.id == idExistente);
-                if(item) {
-                    item.cliente = document.getElementById('f-cliente').value;
-                    item.endereco = document.getElementById('f-endereco').value;
-                    item.tipo = document.getElementById('f-tipo').value;
-                    item.tecnico = document.getElementById('f-tecnico').value;
-                    item.dataEntrega = document.getElementById('f-data-entrega').value;
-                    item.dataMontagem = document.getElementById('f-data-montagem').value;
-                    item.valor = parseFloat(document.getElementById('f-valor').value);
-                    item.peso = parseInt(document.getElementById('f-peso').value);
-                    item.servico = document.getElementById('f-servico').value;
-                }
-            } else {
-                database.push({ 
-                    id: Date.now(), 
-                    cliente: document.getElementById('f-cliente').value, 
-                    endereco: document.getElementById('f-endereco').value, 
-                    tipo: document.getElementById('f-tipo').value, 
-                    dataEntrega: document.getElementById('f-data-entrega').value, 
-                    dataMontagem: document.getElementById('f-data-montagem').value, 
-                    tecnico: document.getElementById('f-tecnico').value, 
-                    valor: parseFloat(document.getElementById('f-valor').value), 
-                    peso: parseInt(document.getElementById('f-peso').value), 
-                    servico: document.getElementById('f-servico').value,
-                    statusPonto: "Agendado", checkIn: "", checkOut: ""
-                }); 
-            }
-            localStorage.setItem('bonttempo_db_v8', JSON.stringify(database)); 
-            closeModal(); 
-            filtrarGeral(); 
-        }
-
-        function openModal() { 
-            document.getElementById('form-solucao').reset();
-            document.getElementById('f-id').value = "";
-            document.getElementById('title-modal-os').innerText = "Criar Nova Ordem de Serviço";
-            document.getElementById('modal-sistema').style.display = 'flex'; 
-            recarregarTodosSelectsTecnicos();
-        }
-        
-        function closeModal() { document.getElementById('modal-sistema').style.display = 'none'; }
-
-        function cadastrarNovoTecnicoReal(e) {
-            e.preventDefault();
-            const nome = document.getElementById('new-tec-nome').value.trim();
-            const user = document.getElementById('new-tec-user').value.trim().toLowerCase();
-            const pass = document.getElementById('new-tec-pass').value;
-
-            if(user === ADMIN_CONFIG.user || listaTecnicos.some(t => t.user === user)) {
-                alert("Este usuário de login já existe ou é reservado pelo Administrador!");
-                return;
-            }
-
-            listaTecnicos.push({ nome, user, pass });
-            localStorage.setItem('bonttempo_tecnicos_v8', JSON.stringify(listaTecnicos));
-            document.getElementById('form-cadastro-tecnico').reset();
-            renderConfig();
-            recarregarTodosSelectsTecnicos();
-            alert("Colaborador ativo cadastrado com sucesso!");
-        }
-
-        function excluirTecnicoReal(user) {
-            if(confirm(`Tem certeza que deseja remover o acesso deste técnico?`)) {
-                listaTecnicos = listaTecnicos.filter(t => t.user !== user);
-                localStorage.setItem('bonttempo_tecnicos_v8', JSON.stringify(listaTecnicos));
-                renderConfig();
-                recarregarTodosSelectsTecnicos();
-            }
-        }
-
-        function renderConfig() {
-            const lblAdmin = document.getElementById('lbl-admin-user');
-            if(lblAdmin) lblAdmin.innerText = ADMIN_CONFIG.user;
-
-            const tbody = document.getElementById('target-lista-tecnicos-config');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            listaTecnicos.forEach(t => {
-                tbody.innerHTML += `<tr>
-                    <td><strong>${t.nome}</strong></td>
-                    <td><code>${t.user}</code></td>
-                    <td>••••••</td>
-                    <td><button class="btn-action btn-red" style="padding:4px 8px;" onclick="excluirTecnicoReal('${t.user}')">🗑️ Remover</button></td>
-                </tr>`;
-            });
+            document.getElementById('w-contratos').innerText = dados.reduce((acc, curr) => acc + (curr.valor || 0), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('w-peso').innerText = `${dados.reduce((acc, curr) => acc + (curr.peso || 0), 0)} kg`;
         }
 
         function salvarNovaAsteca(e) {
             e.preventDefault();
             listaAstecas.push({
-                id: Date.now(),
-                cliente: document.getElementById('ast-cliente').value,
-                oc: document.getElementById('ast-oc').value,
-                ambiente: document.getElementById('ast-ambiente').value,
-                embarque: document.getElementById('ast-embarque').value,
-                detalhe: document.getElementById('ast-detalhe').value
+                id: Date.now(), cliente: document.getElementById('ast-cliente').value, oc: document.getElementById('ast-oc').value,
+                ambiente: document.getElementById('ast-ambiente').value, embarque: document.getElementById('ast-embarque').value, detalhe: document.getElementById('ast-detalhe').value
             });
             localStorage.setItem('bonttempo_astecas_v8', JSON.stringify(listaAstecas));
             document.getElementById('form-asteca').reset();
@@ -673,11 +470,9 @@
         }
 
         function renderAstecas() {
-            const tbody = document.getElementById('target-tabela-astecas');
-            if(!tbody) return;
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('target-tabela-astecas'); if(!tbody) return; tbody.innerHTML = '';
             listaAstecas.forEach(i => {
-                tbody.innerHTML += `<tr><td>${i.cliente}</td><td>${i.oc}</td><td>${i.ambiente}</td><td>${i.detalhe}</td><td>${i.embarque}</td><td><button class="btn-action btn-red" onclick="listaAstecas=listaAstecas.filter(a=>a.id!=${i.id});renderAstecas()">Remover</button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${i.cliente}</td><td>${i.oc}</td><td>${i.ambiente}</td><td>${i.detalhe}</td><td>${formatarDataBR(i.embarque)}</td><td><button class="btn-action btn-red" onclick="listaAstecas=listaAstecas.filter(a=>a.id!=${i.id});localStorage.setItem('bonttempo_astecas_v8',JSON.stringify(listaAstecas));renderAstecas()">Remover</button></td></tr>`;
             });
         }
 
@@ -686,7 +481,8 @@
             listaViagens.push({
                 id: Date.now(), 
                 tecnico: document.getElementById('via-tecnico').value,
-                cliente: document.getElementById('via-cliente').value, 
+                origem: document.getElementById('via-origem').value,
+                destino: document.getElementById('via-destino').value, 
                 saida: document.getElementById('via-saida').value,
                 retorno: document.getElementById('via-retorno').value, 
                 diarias: parseInt(document.getElementById('via-diarias').value),
@@ -700,70 +496,50 @@
         }
 
         function renderViagens() {
-            const tbody = document.getElementById('target-tabela-viagens'); 
-            if(!tbody) return; 
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('target-tabela-viagens'); if(!tbody) return; tbody.innerHTML = '';
             listaViagens.forEach(v => {
                 tbody.innerHTML += `<tr>
                     <td><strong>${v.tecnico}</strong></td>
-                    <td>${v.cliente}</td>
+                    <td>${v.origem || '-'}</td>
+                    <td>${v.destino || v.cliente || '-'}</td>
                     <td>${formatarDataBR(v.saida)} até ${formatarDataBR(v.retorno)}</td>
                     <td>${v.diarias}</td>
-                    <td>R$ ${v.vexpenses.toFixed(2)}</td>
+                    <td>R$ ${(v.vexpenses || 0).toFixed(2)}</td>
                     <td>${v.hotel}</td>
-                    <td><button class="btn-action btn-red" style="padding:4px 8px;" onclick="apagarViagemReal(${v.id})">Remover</button></td>
+                    <td><button class="btn-action btn-red" style="padding:4px 8px;" onclick="listaViagens=listaViagens.filter(via=>via.id!==${v.id});localStorage.setItem('bonttempo_viagens_v8',JSON.stringify(listaViagens));renderViagens();gerarRelatorioFinanceiro();">Remover</button></td>
                 </tr>`;
             });
         }
 
-        function apagarViagemReal(id) {
-            listaViagens = listaViagens.filter(via => via.id !== id);
-            localStorage.setItem('bonttempo_viagens_v8', JSON.stringify(listaViagens));
-            renderViagens();
-            gerarRelatorioFinanceiro();
-        }
-
         function gerarRelatorioFinanceiro() {
-            const target = document.getElementById('target-relatorio-financeiro-print');
-            if(!target) return;
-
+            const target = document.getElementById('target-relatorio-financeiro-print'); if(!target) return;
             const filtroTecnico = document.getElementById('report-via-tecnico').value;
             const filtroInicio = document.getElementById('report-via-inicio').value;
             const filtroFim = document.getElementById('report-via-fim').value;
 
             let filtradas = listaViagens;
-
-            if (filtroTecnico !== "Todos") {
-                filtradas = filtradas.filter(v => v.tecnico === filtroTecnico);
-            }
-
-            if (filtroInicio) {
-                filtradas = filtradas.filter(v => v.saida >= filtroInicio);
-            }
-            if (filtroFim) {
-                filtradas = filtradas.filter(v => v.retorno <= filtroFim);
-            }
+            if (filtroTecnico !== "Todos") filtradas = filtradas.filter(v => v.tecnico === filtroTecnico);
+            if (filtroInicio) filtradas = filtradas.filter(v => v.saida >= filtroInicio);
+            if (filtroFim) filtradas = filtradas.filter(v => v.retorno <= filtroFim);
 
             if (filtradas.length === 0) {
-                target.innerHTML = `<p style="color:#64748b; text-align:center; padding:10px;">Nenhuma programação de viagem encontrada para os filtros selecionados.</p>`;
+                target.innerHTML = `<p style="color:#64748b; text-align:center; padding:10px;">Nenhuma programação de viagem encontrada.</p>`;
                 return;
             }
 
-            let totalVexpenses = 0;
-            let totalDiarias = 0;
-            let linhasTabela = '';
-
+            let totalVexpenses = 0, totalDiarias = 0, linhasTabela = '';
             filtradas.forEach(v => {
-                totalVexpenses += v.vexpenses;
+                totalVexpenses += (v.vexpenses || 0);
                 totalDiarias += v.diarias;
                 linhasTabela += `
                     <tr>
                         <td><strong>${v.tecnico}</strong></td>
-                        <td>${v.cliente}</td>
+                        <td>${v.origem || '-'}</td>
+                        <td>${v.destino || v.cliente || '-'}</td>
                         <td>${formatarDataBR(v.saida)}</td>
                         <td>${formatarDataBR(v.retorno)}</td>
                         <td style="text-align:center;">${v.diarias}</td>
-                        <td>R$ ${v.vexpenses.toFixed(2)}</td>
+                        <td>R$ ${(v.vexpenses || 0).toFixed(2)}</td>
                         <td style="text-align:center;">${v.hotel}</td>
                     </tr>`;
             });
@@ -777,7 +553,8 @@
                     <thead>
                         <tr>
                             <th>Técnico</th>
-                            <th>Origem / Destino</th>
+                            <th>Cidade Origem</th>
+                            <th>Cidade Destino</th>
                             <th>Data Saída</th>
                             <th>Data Retorno</th>
                             <th style="text-align:center;">Diárias</th>
@@ -788,9 +565,9 @@
                     <tbody>
                         ${linhasTabela}
                         <tr style="background:#f1f5f9; font-weight:bold;">
-                            <td colspan="4" style="text-align:right;">TOTAIS DA PROGRAMAÇÃO:</td>
-                            <td style="text-align:center; color:var(--primary); font-weight:800;">${totalDiarias}</td>
-                            <td style="color:var(--success); font-weight:800;">R$ ${totalVexpenses.toFixed(2)}</td>
+                            <td colspan="5" style="text-align:right;">TOTAIS DA PROGRAMAÇÃO:</td>
+                            <td style="text-align:center; color:var(--primary);">${totalDiarias}</td>
+                            <td style="color:var(--success);">R$ ${totalVexpenses.toFixed(2)}</td>
                             <td></td>
                         </tr>
                     </tbody>
@@ -804,12 +581,10 @@
         function formatarDataBR(dataStr) {
             if(!dataStr) return "";
             const partes = dataStr.split('-');
-            if(partes.length !== 3) return dataStr;
-            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            return partes.length !== 3 ? dataStr : `${partes[2]}/${partes[1]}/${partes[0]}`;
         }
 
         function aplicarTemplate(texto) { document.getElementById('tar-descricao').value = texto; document.getElementById('tar-data').value = new Date().toISOString().split('T')[0]; }
-        
         function salvarNovaTarefa(e) {
             e.preventDefault();
             listaTarefas.push({ id: Date.now(), descricao: document.getElementById('tar-descricao').value, data: document.getElementById('tar-data').value, prioridade: document.getElementById('tar-prioridade').value, concluida: false });
@@ -817,27 +592,39 @@
             document.getElementById('form-tarefa').reset();
             renderTarefas();
         }
-
         function renderTarefas() {
             const tbody = document.getElementById('target-tabela-tarefas'); if(!tbody) return; tbody.innerHTML = '';
             listaTarefas.forEach(t => {
-                tbody.innerHTML += `<tr><td>${t.concluida?'✓':'⏳'}</td><td>${t.descricao}</td><td>${t.data}</td><td>${t.prioridade}</td><td><button class="btn-action btn-green" onclick="t.concluida=true;renderTarefas()">✓ Concluir</button></td></tr>`;
+                tbody.innerHTML += `<tr><td>${t.concluida?'✓':'⏳'}</td><td>${t.descricao}</td><td>${formatarDataBR(t.data)}</td><td>${t.prioridade}</td><td><button class="btn-action btn-green" onclick="t.concluida=true;renderTarefas()">✓ Concluir</button></td></tr>`;
             });
         }
-
         function verificarLembretesPendentesPainel() {
-            const alerta = document.getElementById('dashboard-alert-tasks');
-            if(!alerta) return;
+            const alerta = document.getElementById('dashboard-alert-tasks'); if(!alerta) return;
             const pendentes = listaTarefas.filter(t => !t.concluida);
-            if(pendentes.length > 0) {
-                alerta.style.display = 'block';
-                alerta.innerHTML = `⚠️ Você possui <strong>${pendentes.length}</strong> atividade(s) pendente(s) na lista de tarefas.`;
-            } else { alerta.style.display = 'none'; }
+            alerta.style.display = pendentes.length > 0 ? 'block' : 'none';
+            if(pendentes.length > 0) alerta.innerHTML = `⚠️ Você possui <strong>${pendentes.length}</strong> atividade(s) pendente(s).`;
         }
-
         function renderCalendario() {
             const grid = document.getElementById('target-calendar-grid'); if(!grid) return; grid.innerHTML = '';
             for(let i=1; i<=30; i++) grid.innerHTML += `<div class="calendar-cell"><div class="day-number">${i}</div></div>`;
+        }
+        function renderConfig() {
+            document.getElementById('lbl-admin-user').innerText = ADMIN_CONFIG.user;
+            const tbody = document.getElementById('target-lista-tecnicos-config'); if(!tbody) return; tbody.innerHTML = '';
+            listaTecnicos.forEach(t => {
+                tbody.innerHTML += `<tr><td><strong>${t.nome}</strong></td><td><code>${t.user}</code></td><td>••••••</td><td><button class="btn-action btn-red" onclick="listaTecnicos=listaTecnicos.filter(tec=>tec.user!=='${t.user}');localStorage.setItem('bonttempo_tecnicos_v8',JSON.stringify(listaTecnicos));renderConfig();recarregarTodosSelectsTecnicos();">🗑️ Remover</button></td></tr>`;
+            });
+        }
+        function cadastrarNovoTecnicoReal(e) {
+            e.preventDefault();
+            const nome = document.getElementById('new-tec-nome').value.trim();
+            const user = document.getElementById('new-tec-user').value.trim().toLowerCase();
+            const pass = document.getElementById('new-tec-pass').value;
+            if(user === ADMIN_CONFIG.user || listaTecnicos.some(t => t.user === user)) { alert("Usuário já existe!"); return; }
+            listaTecnicos.push({ nome, user, pass });
+            localStorage.setItem('bonttempo_tecnicos_v8', JSON.stringify(listaTecnicos));
+            document.getElementById('form-cadastro-tecnico').reset();
+            renderConfig(); recarregarTodosSelectsTecnicos();
         }
 
         function switchTab(tabId) {
@@ -845,7 +632,6 @@
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
             document.getElementById(`nav-${tabId}`).classList.add('active');
-            
             if(tabId === 'dashboard') filtrarGeral();
             if(tabId === 'settings') renderConfig();
             if(tabId === 'astecas') renderAstecas();
