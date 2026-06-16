@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pós-Vendas - Central de Inteligência</title>
+    <style>
+        :root {
+            --primary: #0f172a; 
+            --accent: #1e293b;  
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --dark: #0f172a;
+            --delivery-color: #ea580c; 
+            --assembly-color: #2563eb; 
+            --assist-color: #ef4444;   
+            --success: #22c55e;
+            --purple: #6b21a8;
+            --warning: #f59e0b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--light); color: var(--dark); display: flex; height: 100vh; overflow: hidden; }
+        
+        .login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 2000; }
+        .login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; }
+        
+        .sidebar { width: 280px; background: #ffffff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 25px 20px; justify-content: space-between; shrink: 0; }
+        .logo-container { padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; min-height: 70px; }
+        .logo-img { max-width: 100%; max-height: 60px; display: block; object-fit: contain; }
+        .brand-title { font-size: 1.25rem; color: var(--primary); font-weight: 800; text-align: center; margin-top: 5px; }
+        .brand-subtitle { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; text-align: center; display: block; }
+        
+        .menu-nav { display: flex; flex-direction: column; gap: 8px; flex: 1; margin-top: 25px; }
+        .menu-btn { display: flex; align-items: center; padding: 12px 15px; border: none; background: none; border-radius: 8px; color: #475569; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.2s; text-align: left; width: 100%; }
+        .menu-btn.active, .menu-btn:hover { background: #f1f5f9; color: var(--primary); box-shadow: inset 4px 0 0 var(--primary); }
+        .btn-logout { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; width: 100%; }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-bar { background: white; padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; shrink: 0; }
+        .page-title { font-weight: 800; font-size: 1.4rem; color: var(--primary); }
+        
+        .btn-action { padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: white; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-blue { background: var(--primary); color: white; border: none; }
+        .btn-green { background: #22c55e; color: white; border: none; }
+        .btn-red { background: #ef4444; color: white; border: none; }
+        .btn-warning { background: var(--warning); color: white; border: none; }
+        
+        .view-panel { flex: 1; padding: 30px; overflow-y: auto; display: none; }
+        .view-panel.active { display: block; }
+        
+        .dash-widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .widget-card { background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
+        .widget-card span { font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+        .widget-card h3 { font-size: 1.8rem; margin-top: 5px; font-weight: 800; }
+        
+        .deep-filters { background: white; padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 25px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .deep-filters div { display: flex; flex-direction: column; gap: 5px; }
+        .deep-filters label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .deep-filters select, .deep-filters input { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fafafa; }
+        
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 8px 8px 0 0; border: 1px solid var(--border); border-bottom: none; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--border); gap: 1px; border: 1px solid var(--border); border-radius: 0 0 8px 8px; overflow: hidden; }
+        .calendar-day-name { background: #f1f5f9; padding: 10px; text-align: center; font-weight: 700; font-size: 0.8rem; color: #475569; text-transform: uppercase; }
+        .calendar-cell { background: white; min-height: 120px; padding: 10px; display: flex; flex-direction: column; gap: 5px; cursor: pointer; transition: 0.2s; }
+        .calendar-cell:hover { background: #f8fafc; }
+        .calendar-cell .day-number { font-weight: 800; font-size: 0.9rem; color: var(--dark); }
+        
+        .system-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 15px; border: 1px solid var(--border); position: relative; transition: 0.2s; }
+        .system-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card-meta-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        .badge-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+        .badge-delivery { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .badge-tech { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+        .badge-assist { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+        
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .card-detail { font-size: 0.85rem; color: #475569; margin-bottom: 6px; }
+        .card-obs { background: #f8fafc; border-left: 3px solid var(--border); padding: 8px; border-radius: 4px; font-size: 0.8rem; color: #64748b; margin-top: 8px; }
+        
+        .ponto-controls { display: flex; gap: 10px; margin-top: 15px; border-top: 1px dashed var(--border); padding-top: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .ponto-time { font-size: 0.75rem; font-weight: bold; color: #475569; margin-top: 5px; }
+        
+        .data-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); border-radius: 8px; margin-top: 15px; overflow: hidden; }
+        .data-table th { background: #f1f5f9; padding: 12px; font-weight: 700; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #475569; }
+        .data-table td { padding: 12px; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+        
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15,23,42,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .form-grid three-col { grid-template-columns: repeat(3, 1fr); }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+        
+        .report-box { background: #f8fafc; border: 1px solid var(--border); padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .report-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        
+        .template-btn-box { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px; border: 1px dashed #cbd5e1; }
+        .template-badge-click { padding: 8px 12px; background: white; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; color: var(--primary); }
+        .template-badge-click:hover { background: var(--primary); color: white; }
+
+        .admin-only { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="login-screen" id="view-login">
+        <div class="login-box">
+            <h2 style="margin-bottom: 20px; font-weight: 800;">Acesso ao Sistema</h2>
+            <div style="display:flex; flex-direction:column; gap:15px; text-align:left;">
+                <div class="form-group">
+                    <label>Usuário</label>
+                    <input type="text" id="login-username" placeholder="Digite seu usuário">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="login-password" placeholder="Digite sua senha">
+                </div>
+                <button class="btn-action btn-blue" style="justify-content:center; padding:12px;" onclick="executarLogin()">Entrar no Sistema</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div>
+            <div class="logo-container">
+                <img id="main-logo" src="https://i.postimg.co/N0gXpXm7/logo-posicionamento-fundo-branco.png" class="logo-img" alt="Logo">
+            </div>
+            <div class="brand-title" id="txt-brand-title">Pós-Vendas Bontempo</div>
+            <div class="brand-subtitle" id="txt-brand-subtitle">Central de Inteligência</div>
+            <div class="menu-nav">
+                <button class="menu-btn active" id="nav-dashboard" onclick="switchTab('dashboard')">📊 Painel de Atendimentos</button>
+                <button class="menu-btn admin-only" id="nav-astecas" onclick="switchTab('astecas')">🛠️ Acompanhamento de Astecas</button>
+                <button class="menu-btn admin-only" id="nav-viagens" onclick="switchTab('viagens')">✈️ Controle de Viagens</button>
+                <button class="menu-btn admin-only" id="nav-templates-tasks" onclick="switchTab('templates-tasks')">📋 Modelos e Tarefas</button>
+                <button class="menu-btn admin-only" id="nav-calendar-view" onclick="switchTab('calendar-view')">📅 Calendário Mensal</button>
+                <button class="menu-btn admin-only" id="nav-reports" onclick="switchTab('reports')">📜 Histórico & Relatórios</button>
+                <button class="menu-btn admin-only" id="nav-settings" onclick="switchTab('settings')">⚙️ Técnicos e Configurações</button>
+            </div>
+        </div>
+        <button class="btn-logout" onclick="executarLogout()">Sair do Painel</button>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title" id="current-view-title">Painel de Atividades</div>
+            <button class="btn-action btn-blue admin-only" onclick="openModal()">➕ Novo Lançamento Integrado</button>
+            <div id="user-display-badge" style="font-weight:bold; background:#e2e8f0; padding:6px 12px; border-radius:20px; font-size:0.85rem;"></div>
+        </div>
+
+        <div id="tab-dashboard" class="view-panel active">
+            <div class="dash-widgets admin-only">
+                <div class="widget-card" style="border-left: 4px solid var(--primary);"><span>Acompanhamentos</span><h3 id="w-entregas">0</h3></div>
+                <div class="widget-card" style="border-left: 4px solid var(--assist-color);"><span>Assistências Ativas</span><h3 id="w-assistencias">0</h3></div>
+                <div class="widget-card" style="border-left: 4px solid var(--success);"><span>Receita Alocada</span><h3 id="w-contratos">R$ 0,00</h3></div>
+                <div class="widget-card" style="border-left: 4px solid var(--purple);"><span>Volume de Carga</span><h3 id="w-peso">0 kg</h3></div>
+            </div>
+
+            <div class="deep-filters admin-only">
+                <div><label>Buscar Cliente</label><input type="text" id="search-cliente" placeholder="Nome do cliente..." oninput="filtrarGeral()"></div>
+                <div><label>Filtrar por Técnico</label><input type="text" id="search-tecnico" placeholder="Nome do profissional..." oninput="filtrarGeral()"></div>
+                <div>
+                    <label>Tipo de Atendimento</label>
+                    <select id="search-tipo" onchange="filtrarGeral()">
+                        <option value="">Todos</option>
+                        <option value="Montagem">Montagem Padrão</option>
+                        <option value="Assistência">Assistência Técnica</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="dashboard-alert-tasks" style="display:none; margin-bottom:20px; padding:15px; background:#fffbeb; border:1px solid #fef3c7; border-left:4px solid var(--warning); border-radius:6px; color:#b45309; font-size:0.9rem; font-weight:600;"></div>
+
+            <h3 style="margin-bottom:15px; font-weight:700;" id="list-title">Fila de Atendimento Geral</h3>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:20px;" id="target-cards-gerais"></div>
+        </div>
+
+        <div id="tab-astecas" class="view-panel">
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
+                <h3 id="title-form-asteca" style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">Registrar Nova OC (Asteca)</h3>
+                <form id="form-asteca" onsubmit="salvarNovaAsteca(event)">
+                    <input type="hidden" id="ast-id">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome do Cliente</label><input type="text" id="ast-cliente" required></div>
+                        <div class="form-group"><label>OC (Ordem de Compra)</label><input type="text" id="ast-oc" required></div>
+                        <div class="form-group"><label>Ambiente</label><input type="text" id="ast-ambiente" required></div>
+                        <div class="form-group"><label>Previsão de Embarque</label><input type="date" id="ast-embarque" required></div>
+                        <div class="form-group full"><label>Detalhamento do Item</label><textarea id="ast-detalhe" rows="3" required></textarea></div>
+                    </div>
+                    <div style="margin-top:15px; display:flex; gap:10px;">
+                        <button type="submit" class="btn-action btn-blue">💾 Salvar Ordem de Compra</button>
+                        <button type="button" id="btn-cancel-ast" class="btn-action" style="display:none;" onclick="cancelarEdicaoAsteca()">Cancelar Edição</button>
+                    </div>
+                </form>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap:15px;">
+                    <h3 style="font-weight: 800; color: var(--primary);">Filtro Informativo de OCs</h3>
+                    <div class="form-grid three-col" style="margin-top:0; width: 100%; max-width: 600px;">
+                        <div class="form-group"><label style="font-size:0.65rem;">Filtrar Cliente</label><input type="text" id="filter-ast-cliente" oninput="renderAstecas()"></div>
+                        <div class="form-group"><label style="font-size:0.65rem;">Filtrar Nº OC</label><input type="text" id="filter-ast-oc" oninput="renderAstecas()"></div>
+                        <div class="form-group" style="justify-content: flex-end;"><button class="btn-action" style="height: 41px; justify-content: center; background: #f1f5f9;" onclick="limparFiltrosAsteca()">🧹 Limpar</button></div>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>Cliente</th><th>Nº OC</th><th>Ambiente</th><th>Detalhamento</th><th>Previsão Embarque</th><th>Ações</th></tr></thead>
+                    <tbody id="target-tabela-astecas"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-viagens" class="view-panel">
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
+                <h3 id="title-form-viagem" style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">Programar Viagem de Técnico</h3>
+                <form id="form-viagem" onsubmit="salvarNovaViagem(event)">
+                    <input type="hidden" id="via-id">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Técnico em Viagem</label><select id="via-tecnico" required></select></div>
+                        <div class="form-group"><label>Cliente / Destino</label><input type="text" id="via-cliente" placeholder="Ex: Showroom Clientes Rondonópolis" required></div>
+                        <div class="form-group"><label>Data de Saída</label><input type="date" id="via-saida" required></div>
+                        <div class="form-group"><label>Data de Retorno</label><input type="date" id="via-retorno" required></div>
+                        <div class="form-group"><label>Qtd de Diárias</label><input type="number" id="via-diarias" min="1" required></div>
+                        <div class="form-group"><label>Saldo Adiantamento Vexpenses (R$)</label><input type="number" id="via-vexpenses" step="0.01" value="0.00" required></div>
+                        <div class="form-group"><label>Necessita de Hotel?</label><select id="via-hotel"><option value="Sim">Sim, Reserva Necessária</option><option value="Não">Não, Acomodação Própria/Parceiro</option></select></div>
+                    </div>
+                    <div style="margin-top:15px; display:flex; gap:10px;">
+                        <button type="submit" class="btn-action btn-blue">✈️ Agendar e Validar Viagem</button>
+                        <button type="button" id="btn-cancel-via" class="btn-action" style="display:none;" onclick="cancelarEdicaoViagem()">Cancelar Edição</button>
+                    </div>
+                </form>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
+                <h3 style="font-weight: 800; margin-bottom: 15px; color: var(--primary);">Escala Ativa de Deslocamentos</h3>
+                <table class="data-table">
+                    <thead><tr><th>Técnico</th><th>Cliente / Destino</th><th>Período</th><th>Diárias</th><th>Vexpenses</th><th>Hotel</th><th>Ações</th></tr></thead>
+                    <tbody id="target-tabela-viagens"></tbody>
+                </table>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
+                <h3 style="font-weight: 800; margin-bottom: 15px; color: var(--primary);">Extrator de Relatório para o Financeiro</h3>
+                <div class="form-grid three-col" style="margin-top:0;">
+                    <div class="form-group">
+                        <label>Filtrar por Profissional</label>
+                        <select id="report-via-tecnico" onchange="gerarRelatorioFinanceiro()"></select>
+                    </div>
+                </div>
+                <div id="target-relatorio-financeiro-print" class="report-box"></div>
+            </div>
+        </div>
+
+        <div id="tab-templates-tasks" class="view-panel">
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
+                <h3 style="margin-bottom: 5px; font-weight: 800; color: var(--primary);">Modelos Rápidos de Atividades (Templates)</h3>
+                <p style="font-size:0.85rem; color:#64748b; margin-bottom:15px;">Clique em um modelo rápido abaixo para preencher o formulário automaticamente:</p>
+                <div class="template-btn-box">
+                    <div class="template-badge-click" onclick="aplicarTemplate('Cobrar fábrica sobre atraso de OC/Asteca')">🏭 Cobrar Fábrica (Asteca)</div>
+                    <div class="template-badge-click" onclick="aplicarTemplate('Fazer contato com cliente para agendamento técnico')">📞 Agendar Cliente</div>
+                    <div class="template-badge-click" onclick="aplicarTemplate('Solicitar adiantamento Vexpenses e reserva de hotel ao financeiro')">💰 Solicitar Viagem Financeiro</div>
+                    <div class="template-badge-click" onclick="aplicarTemplate('Realizar vistoria técnica de pós-obra e alinhamento de painéis')">📐 Vistoria Técnica Local</div>
+                    <div class="template-badge-click" onclick="aplicarTemplate('Conferência física de conferência de volumes descarregados')">📦 Conferir Carga</div>
+                </div>
+
+                <h3 id="title-form-tarefa" style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">Cadastrar Nova Atividade / Lembrete</h3>
+                <form id="form-tarefa" onsubmit="salvarNovaTarefa(event)">
+                    <input type="hidden" id="tar-id">
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Descrição da Atividade</label><input type="text" id="tar-descricao" placeholder="Ex: Entrar em contato com o cliente X para alinhar pendência..." required></div>
+                        <div class="form-group"><label>Data Limite de Execução</label><input type="date" id="tar-data" required></div>
+                        <div class="form-group">
+                            <label>Prioridade</label>
+                            <select id="tar-prioridade">
+                                <option value="Normal">Normal</option>
+                                <option value="Alta">Alta Urgência</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px; display:flex; gap:10px;">
+                        <button type="submit" class="btn-action btn-blue">📅 Agendar Atividade</button>
+                    </div>
+                </form>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
+                <h3 style="font-weight: 800; margin-bottom: 15px; color: var(--primary);">Minhas Atividades e Lembretes Agendados</h3>
+                <table class="data-table">
+                    <thead><tr><th>Status</th><th>Atividade</th><th>Data Programada</th><th>Prioridade</th><th>Ações Rápidas</th></tr></thead>
+                    <tbody id="target-tabela-tarefas"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-calendar-view" class="view-panel">
+            <div class="calendar-header"><h3 style="font-weight:800; color:var(--primary);" id="calendar-month-title">Junho 2026</h3></div>
+            <div class="calendar-grid" id="target-calendar-grid"></div>
+        </div>
+
+        <div id="tab-reports" class="view-panel">
+            <h3 style="font-weight:700; margin-bottom: 20px;">Painel de Auditoria de Ponto</h3>
+            <table class="data-table">
+                <thead><tr><th>Cliente</th><th>Tipo</th><th>Técnico</th><th>Data</th><th>Entrada</th><th>Saída</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="target-tabela-relatorios"></tbody>
+            </table>
+        </div>
+
+        <div id="tab-settings" class="view-panel">
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 30px;">
+                <h3 style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">➕ Cadastrar Novo Colaborador Técnico</h3>
+                <form id="form-cadastro-tecnico" onsubmit="cadastrarNovoTecnicoReal(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome do Profissional</label><input type="text" id="new-tec-nome" placeholder="Ex: Rodrigo Silva" required></div>
+                        <div class="form-group"><label>Usuário de Acesso (Login)</label><input type="text" id="new-tec-user" placeholder="Ex: rodrigo" required></div>
+                        <div class="form-group full"><label>Senha do Técnico</label><input type="password" id="new-tec-pass" placeholder="Defina uma senha" required></div>
+                    </div>
+                    <button type="submit" class="btn-action btn-blue" style="margin-top: 15px;">💾 Adicionar Colaborador</button>
+                </form>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 10px; border: 1px solid var(--border);">
+                <h3 style="margin-bottom: 15px; font-weight: 800; color: var(--primary);">Colaboradores Ativos no Setor</h3>
+                <table class="data-table">
+                    <thead><tr><th>Nome Profissional</th><th>Usuário</th><th>Senha</th><th>Ação</th></tr></thead>
+                    <tbody id="target-lista-tecnicos-config"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-sistema">
+        <div class="modal-content">
+            <h3 id="title-modal-os" style="font-weight:800; margin-bottom:15px;">Criar Nova Ordem de Serviço</h3>
+            <form id="form-solucao" onsubmit="salvarFormulario(event)">
+                <input type="hidden" id="f-id">
+                <div class="form-grid">
+                    <div class="form-group full"><label>Nome do Cliente</label><input type="text" id="f-cliente" required></div>
+                    <div class="form-group full"><label>Endereço</label><input type="text" id="f-endereco" required></div>
+                    <div class="form-group">
+                        <label>Operação</label>
+                        <select id="f-tipo">
+                            <option value="Montagem">Montagem Padrão</option>
+                            <option value="Assistência">Assistência Técnica</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Técnico Designado</label><select id="f-tecnico" required></select></div>
+                    <div class="form-group"><label>Data Entrega Carga</label><input type="date" id="f-data-entrega" required></div>
+                    <div class="form-group"><label>Data Execução Serviço</label><input type="date" id="f-data-montagem" required></div>
+                    <div class="form-group"><label>Valor Contrato (R$)</label><input type="number" id="f-valor" step="0.01" value="0.00"></div>
+                    <div class="form-group"><label>Cubagem Carga (kg)</label><input type="number" id="f-peso" value="0"></div>
+                    <div class="form-group full"><label>Detalhamento Técnico</label><textarea id="f-servico" rows="3" required></textarea></div>
+                </div>
+                <div style="margin-top:25px; display:flex; gap:12px;">
+                    <button type="button" class="btn-action" style="flex:1; justify-content:center;" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-action btn-blue" style="flex:1; justify-content:center;">Confirmar Lançamento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        
+        // Mantém apenas os de teste que você poderá excluir na aba configurações
+        let listaTecnicos = JSON.parse(localStorage.getItem('bontempo_tecnicos_v8')) || [
+            { nome: "Danilo", user: "danilo", pass: "123" }, 
+            { nome: "Matheus", user: "matheus", pass: "123" }
+        ];
+        
+        // Base de dados inicializada vazia para uso real
+        let database = JSON.parse(localStorage.getItem('bontempo_db_v8')) || [];
+        let listaAstecas = JSON.parse(localStorage.getItem('bontempo_astecas_v8')) || [];
+        let listaViagens = JSON.parse(localStorage.getItem('bontempo_viagens_v8')) || [];
+        let listaTarefas = JSON.parse(localStorage.getItem('bonttempo_tarefas_v8')) || [];
+
+        function executarLogin() {
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value;
+            if (u === 'admin' && p === '123') {
+                currentUser = { tipo: 'admin', nome: 'Administrador' };
+            } else {
+                const encontrou = listaTecnicos.find(t => t.user === u && t.pass === p);
+                if (encontrou) currentUser = { tipo: 'tecnico', nome: encontrou.nome };
+            }
+            if (currentUser) {
+                document.getElementById('view-login').style.display = 'none';
+                ajustarPermissoesTela();
+                recarregarTodosSelectsTecnicos();
+                switchTab('dashboard');
+            } else { alert("Usuário ou senha incorretos!"); }
+        }
+
+        function executarLogout() {
+            currentUser = null;
+            document.getElementById('view-login').style.display = 'flex';
+        }
+
+        function recarregarTodosSelectsTecnicos() {
+            const m1 = document.getElementById('f-tecnico');
+            const m2 = document.getElementById('via-tecnico');
+            const m3 = document.getElementById('report-via-tecnico');
+            
+            let html = '';
+            listaTecnicos.forEach(t => html += `<option value="${t.nome}">${t.nome}</option>`);
+            
+            if(m1) m1.innerHTML = html || '<option value="">Nenhum técnico cadastrado</option>';
+            if(m2) m2.innerHTML = html || '<option value="">Nenhum técnico cadastrado</option>';
+            if(m3) m3.innerHTML = `<option value="Todos">Todos os Técnicos</option>` + html;
+        }
+
+        function ajustarPermissoesTela() {
+            document.getElementById('user-display-badge').innerText = `Logado como: ${currentUser.nome}`;
+            if (currentUser.tipo === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            }
+            filtrarGeral();
+            verificarLembretesPendentesPainel();
+            renderConfig();
+        }
+
+        function filtrarGeral() {
+            const container = document.getElementById('target-cards-gerais');
+            container.innerHTML = '';
+            
+            const fCliente = document.getElementById('search-cliente').value.toLowerCase();
+            const fTecnico = document.getElementById('search-tecnico').value.toLowerCase();
+            const fTipo = document.getElementById('search-tipo').value;
+
+            let dados = database;
+            if (currentUser && currentUser.tipo === 'tecnico') {
+                dados = database.filter(i => i.tecnico === currentUser.nome);
+            }
+
+            dados = dados.filter(item => {
+                const matchCliente = item.cliente.toLowerCase().includes(fCliente);
+                const matchTecnico = item.tecnico.toLowerCase().includes(fTecnico);
+                const matchTipo = fTipo === "" || item.tipo === fTipo;
+                return matchCliente && matchTecnico && matchTipo;
+            });
+
+            atualizarWidgets(dados);
+
+            if(dados.length === 0) {
+                container.innerHTML = '<p style="color:#64748b; grid-column:1/-1; text-align:center; padding:30px;">Nenhum atendimento real registrado ainda.</p>';
+                return;
+            }
+
+            dados.forEach(item => {
+                const badgeClass = item.tipo === 'Montagem' ? 'badge-tech' : 'badge-assist';
+                const pTimeStr = item.checkIn ? `<div class="ponto-time">⏱️ Check-In: ${item.checkIn} ${item.checkOut ? `| Check-Out: ${item.checkOut}` : ''}</div>` : '';
+                
+                let btnPonto = '';
+                if(currentUser && currentUser.tipo === 'tecnico') {
+                    if(!item.checkIn) {
+                        btnPonto = `<button class="btn-action btn-green" onclick="registrarPonto(${item.id}, 'in')">Iniciar Serviço (Check-In)</button>`;
+                    } else if(!item.checkOut) {
+                        btnPonto = `<button class="btn-action btn-red" onclick="registrarPonto(${item.id}, 'out')">Concluir Serviço (Check-Out)</button>`;
+                    }
+                }
+
+                let botoesAdmin = '';
+                if(currentUser && currentUser.tipo === 'admin') {
+                    botoesAdmin = `
+                        <button class="btn-action" style="background:#f1f5f9; padding:5px 10px;" onclick="iniciarEdicaoOS(${item.id})">✏️ Editar</button>
+                        <button class="btn-action btn-red" style="padding:5px 10px;" onclick="apagarOSReal(${item.id})">🗑️ Excluir</button>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="system-card">
+                        <div class="card-meta-line">
+                            <span class="badge-tag ${badgeClass}">${item.tipo}</span>
+                            <span style="color:#64748b;">📅 OS: ${item.dataMontagem}</span>
+                        </div>
+                        <div class="card-title">${item.cliente}</div>
+                        <div class="card-detail">📍 Local: ${item.endereco}</div>
+                        <div class="card-detail">👷 Técnico: <strong>${item.tecnico}</strong></div>
+                        <div class="card-obs"><strong>Instruções:</strong> ${item.servico}</div>
+                        ${pTimeStr}
+                        <div class="ponto-controls">
+                            <div>${btnPonto}</div>
+                            <div style="display:flex; gap:5px;">${botoesAdmin}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function registrarPonto(id, tipo) {
+            const hora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+            const item = database.find(i => i.id === id);
+            if(item) {
+                if(tipo === 'in') {
+                    item.checkIn = hora;
+                    item.statusPonto = "Em Andamento";
+                } else {
+                    item.checkOut = hora;
+                    item.statusPonto = "Finalizado";
+                }
+                localStorage.setItem('bontempo_db_v8', JSON.stringify(database));
+                filtrarGeral();
+            }
+        }
+
+        function atualizarWidgets(dados) {
+            if(currentUser.tipo !== 'admin') return;
+            document.getElementById('w-entregas').innerText = dados.length;
+            document.getElementById('w-assistencias').innerText = dados.filter(i => i.tipo === 'Assistência').length;
+            document.getElementById('w-contratos').innerText = dados.reduce((acc, curr) => acc + curr.valor, 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('w-purple' || 'w-peso').innerText = `${dados.reduce((acc, curr) => acc + curr.peso, 0)} kg`;
+        }
+
+        function iniciarEdicaoOS(id) {
+            const item = database.find(i => i.id === id);
+            if(!item) return;
+            
+            document.getElementById('f-id').value = item.id;
+            document.getElementById('f-cliente').value = item.cliente;
+            document.getElementById('f-endereco').value = item.endereco;
+            document.getElementById('f-tipo').value = item.tipo;
+            document.getElementById('f-tecnico').value = item.tecnico;
+            document.getElementById('f-data-entrega').value = item.dataEntrega;
+            document.getElementById('f-data-montagem').value = item.dataMontagem;
+            document.getElementById('f-valor').value = item.valor;
+            document.getElementById('f-peso').value = item.peso;
+            document.getElementById('f-servico').value = item.servico;
+            
+            document.getElementById('title-modal-os').innerText = "✏️ Alterar Dados da Ordem de Serviço";
+            document.getElementById('modal-sistema').style.display = 'flex';
+        }
+
+        function apagarOSReal(id) {
+            if(confirm("Deseja realmente excluir este atendimento?")) {
+                database = database.filter(i => i.id !== id);
+                localStorage.setItem('bonttempo_db_v8', JSON.stringify(database));
+                filtrarGeral();
+            }
+        }
+
+        function salvarFormulario(e) { 
+            e.preventDefault(); 
+            const idExistente = document.getElementById('f-id').value;
+            
+            if(idExistente) {
+                const item = database.find(i => i.id == idExistente);
+                if(item) {
+                    item.cliente = document.getElementById('f-cliente').value;
+                    item.endereco = document.getElementById('f-endereco').value;
+                    item.tipo = document.getElementById('f-tipo').value;
+                    item.tecnico = document.getElementById('f-tecnico').value;
+                    item.dataEntrega = document.getElementById('f-data-entrega').value;
+                    item.dataMontagem = document.getElementById('f-data-montagem').value;
+                    item.valor = parseFloat(document.getElementById('f-valor').value);
+                    item.peso = parseInt(document.getElementById('f-peso').value);
+                    item.servico = document.getElementById('f-servico').value;
+                }
+            } else {
+                database.push({ 
+                    id: Date.now(), 
+                    cliente: document.getElementById('f-cliente').value, 
+                    endereco: document.getElementById('f-endereco').value, 
+                    tipo: document.getElementById('f-tipo').value, 
+                    dataEntrega: document.getElementById('f-data-entrega').value, 
+                    dataMontagem: document.getElementById('f-data-montagem').value, 
+                    tecnico: document.getElementById('f-tecnico').value, 
+                    valor: parseFloat(document.getElementById('f-valor').value), 
+                    peso: parseInt(document.getElementById('f-peso').value), 
+                    servico: document.getElementById('f-servico').value,
+                    statusPonto: "Agendado", checkIn: "", checkOut: ""
+                }); 
+            }
+            localStorage.setItem('bontempo_db_v8', JSON.stringify(database)); 
+            closeModal(); 
+            filtrarGeral(); 
+        }
+
+        function openModal() { 
+            document.getElementById('form-solucao').reset();
+            document.getElementById('f-id').value = "";
+            document.getElementById('title-modal-os').innerText = "Criar Nova Ordem de Serviço";
+            document.getElementById('modal-sistema').style.display = 'flex'; 
+            recarregarTodosSelectsTecnicos();
+        }
+        
+        function closeModal() { document.getElementById('modal-sistema').style.display = 'none'; }
+
+        function cadastrarNovoTecnicoReal(e) {
+            e.preventDefault();
+            const nome = document.getElementById('new-tec-nome').value.trim();
+            const user = document.getElementById('new-tec-user').value.trim().toLowerCase();
+            const pass = document.getElementById('new-tec-pass').value;
+
+            if(listaTecnicos.some(t => t.user === user)) {
+                alert("Este usuário de login já existe!");
+                return;
+            }
+
+            listaTecnicos.push({ nome, user, pass });
+            localStorage.setItem('bonttempo_tecnicos_v8', JSON.stringify(listaTecnicos));
+            document.getElementById('form-cadastro-tecnico').reset();
+            renderConfig();
+            recarregarTodosSelectsTecnicos();
+            alert("Colaborador ativo cadastrado com sucesso!");
+        }
+
+        function excluirTecnicoReal(user) {
+            if(confirm(`Tem certeza que deseja remover o acesso deste técnico?`)) {
+                listaTecnicos = listaTecnicos.filter(t => t.user !== user);
+                localStorage.setItem('bonttempo_tecnicos_v8', JSON.stringify(listaTecnicos));
+                renderConfig();
+                recarregarTodosSelectsTecnicos();
+            }
+        }
+
+        function renderConfig() {
+            const tbody = document.getElementById('target-lista-tecnicos-config');
+            tbody.innerHTML = '';
+            listaTecnicos.forEach(t => {
+                tbody.innerHTML += `<tr>
+                    <td><strong>${t.nome}</strong></td>
+                    <td><code>${t.user}</code></td>
+                    <td>••••••</td>
+                    <td><button class="btn-action btn-red" style="padding:4px 8px;" onclick="excluirTecnicoReal('${t.user}')">🗑️ Remover</button></td>
+                </tr>`;
+            });
+        }
+
+        // --- OUTRAS ABAS SIMPLIFICADAS ---
+        function salvarNovaAsteca(e) {
+            e.preventDefault();
+            listaAstecas.push({
+                id: Date.now(),
+                cliente: document.getElementById('ast-cliente').value,
+                oc: document.getElementById('ast-oc').value,
+                ambiente: document.getElementById('ast-ambiente').value,
+                embarque: document.getElementById('ast-embarque').value,
+                detalhe: document.getElementById('ast-detalhe').value
+            });
+            localStorage.setItem('bonttempo_astecas_v8', JSON.stringify(listaAstecas));
+            document.getElementById('form-asteca').reset();
+            renderAstecas();
+        }
+
+        function renderAstecas() {
+            const tbody = document.getElementById('target-tabela-astecas');
+            tbody.innerHTML = '';
+            listaAstecas.forEach(i => {
+                tbody.innerHTML += `<tr><td>${i.cliente}</td><td>${i.oc}</td><td>${i.ambiente}</td><td>${i.detalhe}</td><td>${i.embarque}</td><td><button class="btn-action btn-red" onclick="listaAstecas=listaAstecas.filter(a=>a.id!=${i.id});renderAstecas()">Remover</button></td></tr>`;
+            });
+        }
+
+        function salvarNovaViagem(e) {
+            e.preventDefault();
+            listaViagens.push({
+                id: Date.now(), tecnico: document.getElementById('via-tecnico').value,
+                cliente: document.getElementById('via-cliente').value, saida: document.getElementById('via-saida').value,
+                retorno: document.getElementById('via-retorno').value, diarias: parseInt(document.getElementById('via-diarias').value),
+                vexpenses: parseFloat(document.getElementById('via-vexpenses').value), hotel: document.getElementById('via-hotel').value
+            });
+            localStorage.setItem('bonttempo_viagens_v8', JSON.stringify(listaViagens));
+            document.getElementById('form-viagem').reset();
+            renderViagens();
+        }
+
+        function renderViagens() {
+            const tbody = document.getElementById('target-tabela-viagens'); tbody.innerHTML = '';
+            listaViagens.forEach(v => {
+                tbody.innerHTML += `<tr><td>${v.tecnico}</td><td>${v.cliente}</td><td>${v.saida} / ${v.retorno}</td><td>${v.diarias}</td><td>R$ ${v.vexpenses}</td><td>${v.hotel}</td><td><button class="btn-action btn-red" onclick="listaViagens=listaViagens.filter(via=>via.id!=${v.id});renderViagens()">Remover</button></td></tr>`;
+            });
+        }
+
+        function aplicarTemplate(texto) { document.getElementById('tar-descricao').value = texto; document.getElementById('tar-data').value = new Date().toISOString().split('T')[0]; }
+        
+        function salvarNovaTarefa(e) {
+            e.preventDefault();
+            listaTarefas.push({ id: Date.now(), descricao: document.getElementById('tar-descricao').value, data: document.getElementById('tar-data').value, prioridade: document.getElementById('tar-prioridade').value, concluida: false });
+            localStorage.setItem('bonttempo_tarefas_v8', JSON.stringify(listaTarefas));
+            document.getElementById('form-tarefa').reset();
+            renderTarefas();
+        }
+
+        function renderTarefas() {
+            const tbody = document.getElementById('target-tabela-tarefas'); tbody.innerHTML = '';
+            listaTarefas.forEach(t => {
+                tbody.innerHTML += `<tr><td>${t.concluida?'✓':'⏳'}</td><td>${t.descricao}</td><td>${t.data}</td><td>${t.prioridade}</td><td><button class="btn-action btn-green" onclick="t.concluida=true;renderTarefas()">✓ Concluir</button></td></tr>`;
+            });
+        }
+
+        function verificarLembretesPendentesPainel() {
+            const alerta = document.getElementById('dashboard-alert-tasks');
+            const pendentes = listaTarefas.filter(t => !t.concluida);
+            if(pendentes.length > 0) {
+                alerta.style.display = 'block';
+                alerta.innerHTML = `⚠️ Você possui <strong>${pendentes.length}</strong> atividade(s) pendente(s) na lista de tarefas.`;
+            } else { alerta.style.display = 'none'; }
+        }
+
+        function renderCalendario() {
+            const grid = document.getElementById('target-calendar-grid'); grid.innerHTML = '';
+            for(let i=1; i<=30; i++) grid.innerHTML += `<div class="calendar-cell"><div class="day-number">${i}</div></div>`;
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`nav-${tabId}`).classList.add('active');
+            
+            if(tabId === 'dashboard') filtrarGeral();
+            if(tabId === 'settings') renderConfig();
+            if(tabId === 'astecas') renderAstecas();
+            if(tabId === 'viagens') renderViagens();
+            if(tabId === 'templates-tasks') renderTarefas();
+            if(tabId === 'calendar-view') renderCalendario();
+        }
+    </script>
+</body>
+</html>
