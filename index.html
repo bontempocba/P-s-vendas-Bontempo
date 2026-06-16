@@ -89,7 +89,7 @@
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group.full { grid-column: 1 / -1; }
         .form-group label { font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; }
-        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; background: #fafafa; }
         
         .report-box { background: #f8fafc; border: 1px solid var(--border); padding: 20px; border-radius: 8px; margin-top: 20px; }
         .report-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
@@ -130,7 +130,8 @@
     <div class="sidebar">
         <div>
             <div class="logo-container">
-                <img id="main-logo" src="https://i.postimg.co/N0gXpXm7/logo-posicionamento-fundo-branco.png" class="logo-img" alt="Logo">
+                <!-- Alterado aqui para carregar o arquivo local logo.png do repositório -->
+                <img id="main-logo" src="logo.png" class="logo-img" alt="Logo">
             </div>
             <div class="brand-title" id="txt-brand-title">Pós-Vendas Bontempo</div>
             <div class="brand-subtitle" id="txt-brand-subtitle">Central de Inteligência</div>
@@ -537,10 +538,10 @@
                 return;
             }
 
-            let linhas = '', totalPeso = 0;
+            let lines = '', totalPeso = 0;
             filtrados.forEach(i => {
                 totalPeso += (i.peso || 0);
-                linhas += `<tr>
+                lines += `<tr>
                     <td><strong>${i.cliente}</strong></td>
                     <td>${formatarDataBR(i.entrega)}</td>
                     <td>${formatarDataBR(i.vistoria)}</td>
@@ -565,7 +566,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${linhas}
+                        ${lines}
                         <tr style="background:#f1f5f9; font-weight:bold;">
                             <td colspan="4" style="text-align:right;">PESO CARREGAMENTO TOTAL:</td>
                             <td style="color:var(--purple);">${totalPeso} kg</td>
@@ -656,7 +657,7 @@
             });
         }
 
-        function gerarRelatorioFinanceiro() {
+        function generarRelatorioFinanceiro() {
             const target = document.getElementById('target-relatorio-financeiro-print'); if(!target) return;
             const filtroTecnico = document.getElementById('report-via-tecnico').value;
             let filtradas = listaViagens;
