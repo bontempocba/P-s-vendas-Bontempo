@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bontempo - Gestão Integrada de Pós-Vendas & Viagens</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #f9f9fb;
+            --surface: #ffffff;
+            --border-light: #eaeaef;
+            --border-subtle: #f0f0f3;
+            --text-main: #111111;
+            --text-muted: #71717a;
+            --text-light: #a1a1aa;
+            --accent-black: #000000;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+        /* TELA DE LOGIN */
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-box { width: 100%; max-width: 380px; padding: 40px 30px; border: 1px solid var(--border-light); border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.03); background: #ffffff; }
+        .login-box img { max-width: 180px; margin-bottom: 25px; }
+        .login-form { display: flex; flex-direction: column; gap: 15px; text-align: left; margin-top: 15px; }
+        .login-form label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+        .login-form input { padding: 12px; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem; outline: none; }
+        .login-form input:focus { border-color: var(--text-main); }
+
+        /* LAYOUT PRINCIPAL */
+        .sidebar { width: 260px; background: var(--surface); border-right: 1px solid var(--border-light); display: flex; flex-direction: column; padding: 35px 22px; flex-shrink: 0; justify-content: space-between; }
+        .brand-container { text-align: center; margin-bottom: 30px; }
+        .brand-container img { max-width: 150px; height: auto; display: block; margin: 0 auto; }
+
+        .nav-menu { display: flex; flex-direction: column; gap: 6px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: none; background: none; border-radius: 8px; color: var(--text-muted); font-size: 0.82rem; font-weight: 400; cursor: pointer; transition: all 0.2s ease; text-align: left; width: 100%; letter-spacing: 0.3px; }
+        .nav-item:hover, .nav-item.active { background: #f4f4f6; color: var(--text-main); font-weight: 500; }
+        .nav-item.active { border-left: 2px solid var(--accent-black); }
+
+        .user-info-box { border-top: 1px solid var(--border-light); padding-top: 15px; font-size: 0.78rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: var(--surface); border-bottom: 1px solid var(--border-light); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 1.05rem; font-weight: 400; letter-spacing: 2px; text-transform: uppercase; color: var(--text-main); }
+
+        .content { flex: 1; padding: 30px 40px; overflow-y: auto; display: none; }
+        .content.active { display: block; }
+
+        /* PAINEL & CARDS */
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 30px; }
+        .metric-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: 12px; padding: 20px 24px; }
+        .metric-label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 6px; display: block; }
+        .metric-value { font-size: 2rem; font-weight: 300; color: var(--text-main); }
+
+        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; }
+        .search-input { padding: 10px 18px; border: 1px solid var(--border-light); border-radius: 20px; font-size: 0.82rem; width: 300px; background: var(--surface); color: var(--text-main); outline: none; }
+
+        .btn { padding: 10px 22px; border-radius: 20px; font-size: 0.78rem; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s ease; }
+        .btn-dark { background: var(--accent-black); color: #ffffff; }
+        .btn-dark:hover { background: #27272a; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-light); color: var(--text-main); }
+        .btn-outline:hover { background: #f4f4f6; }
+
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 20px; }
+        .assist-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .assist-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; }
+        .client-name { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+        .contract-no { font-size: 0.75rem; color: var(--text-muted); }
+
+        .badge-status { padding: 4px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+        .status-agendada, .status-pendente { background: #27272a; color: #ffffff; }
+        .status-andamento, .status-aprovada { background: #1e3a8a; color: #ffffff; }
+        .status-concluido-completo, .status-finalizada { background: #15803d; color: #ffffff; }
+        .status-concluido-parcial { background: #d97706; color: #ffffff; }
+        .status-retorno { background: #dc2626; color: #ffffff; }
+
+        /* TABELAS PADRÃO */
+        .custom-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #ffffff; border-radius: 12px; border: 1px solid var(--border-light); overflow: hidden; }
+        .custom-table th, .custom-table td { padding: 14px 18px; text-align: left; font-size: 0.82rem; border-bottom: 1px solid var(--border-light); }
+        .custom-table th { background: #fafafa; font-size: 0.68rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.8px; font-weight: 600; }
+
+        /* CALENDÁRIO SEMANAL */
+        .calendar-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--surface); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-light); }
+        .week-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+        .day-column { background: var(--surface); border: 1px solid var(--border-light); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-height: 480px; }
+        .day-header { background: #fafafa; border-bottom: 1px solid var(--border-light); padding: 12px; text-align: center; }
+        .day-name { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .day-number { font-size: 1.1rem; font-weight: 300; color: var(--text-main); margin-top: 2px; }
+
+        .time-slot-block { padding: 12px; border-bottom: 1px solid var(--border-subtle); flex: 1; }
+        .slot-title { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .event-card { padding: 10px; border-radius: 8px; font-size: 0.75rem; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+        .event-time { font-size: 0.68rem; opacity: 0.9; font-weight: 600; text-transform: uppercase; }
+        .event-client { font-weight: 600; margin-top: 2px; line-height: 1.2; }
+        .slot-free { font-size: 0.72rem; color: var(--text-light); border: 1px dashed var(--border-light); padding: 8px; border-radius: 6px; text-align: center; }
+
+        /* MODAIS & FORMULÁRIOS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-box { background: var(--surface); padding: 35px; border-radius: 16px; width: 100%; max-width: 680px; max-height: 88vh; overflow-y: auto; }
+        .modal-title { font-size: 1rem; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px 14px; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem; background: #fafafa; outline: none; }
+
+        .tech-status-select { padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; border: 1px solid var(--border-light); background: #ffffff; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE LOGIN -->
+    <div class="login-overlay" id="login-overlay">
+        <div class="login-box">
+            <img src="logo.png" onerror="this.onerror=null; this.src='Bontempo.png';" alt="Bontempo">
+            <h3 style="font-weight: 300; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;">Pós-Vendas & Viagens</h3>
+            
+            <form class="login-form" onsubmit="fazerLogin(event)">
+                <div>
+                    <label>Usuário / Login</label>
+                    <input type="text" id="login-user" placeholder="Digite seu usuário..." required>
+                </div>
+                <div>
+                    <label>Senha</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-dark" style="margin-top: 10px; justify-content: center;">Entrar no Sistema</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div>
+            <div class="brand-container">
+                <img src="logo.png" onerror="this.onerror=null; this.src='Bontempo.png';" alt="Bontempo">
+            </div>
+            <div class="nav-menu">
+                <button class="nav-item active" id="nav-painel" onclick="switchTab('painel')"><i class="fa-solid fa-grid-2"></i> Painel Geral</button>
+                <button class="nav-item admin-only" id="nav-cal" onclick="switchTab('calendario')"><i class="fa-solid fa-calendar-days"></i> Calendário Semanal</button>
+                <button class="nav-item" id="nav-chamados" onclick="switchTab('chamados')"><i class="fa-solid fa-wrench"></i> Assistências</button>
+                <button class="nav-item" id="nav-passagens" onclick="switchTab('passagens')"><i class="fa-solid fa-plane"></i> Solicit. Passagens</button>
+                <button class="nav-item" id="nav-vexpenses" onclick="switchTab('vexpenses')"><i class="fa-solid fa-suitcase"></i> Viagens (VExpenses)</button>
+                <button class="nav-item admin-only" id="nav-equipe" onclick="switchTab('equipe')"><i class="fa-solid fa-users-gear"></i> Cadastrar Equipe</button>
+            </div>
+        </div>
+
+        <div class="user-info-box">
+            <div>
+                <strong id="logged-user-name" style="display:block; color:var(--text-main);">--</strong>
+                <small id="logged-user-role" style="text-transform:uppercase; font-size:0.65rem;">--</small>
+            </div>
+            <button onclick="fazerLogout()" style="background:none; border:none; cursor:pointer; color:var(--text-light);" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
+    </div>
+
+    <!-- WORKSPACE PRINCIPAL -->
+    <div class="main-wrapper">
+        <div class="header">
+            <div class="header-title" id="page-title">Assistência Técnica</div>
+            <div id="header-actions">
+                <button class="btn btn-dark admin-only" id="btn-novo-agendamento" onclick="openModal()"><i class="fa-solid fa-plus"></i> Nova Assistência</button>
+            </div>
+        </div>
+
+        <!-- TAB 1: PAINEL GERAL -->
+        <div id="tab-painel" class="content active">
+            <div class="metrics-grid">
+                <div class="metric-card"><span class="metric-label">Atendimentos Hoje</span><div class="metric-value" id="kpi-hoje">0</div></div>
+                <div class="metric-card"><span class="metric-label">Em Andamento</span><div class="metric-value" id="kpi-andamento">0</div></div>
+                <div class="metric-card"><span class="metric-label">Passagens Pendentes</span><div class="metric-value" id="kpi-passagens">0</div></div>
+                <div class="metric-card"><span class="metric-label">Viagens Solicitadas</span><div class="metric-value" id="kpi-viagens">0</div></div>
+            </div>
+
+            <div class="action-bar">
+                <h3 style="font-weight: 300; letter-spacing: 1px; font-size: 0.95rem; text-transform: uppercase;">Demandas Registradas</h3>
+                <input type="text" class="search-input" placeholder="Pesquisar cliente ou contrato..." oninput="filtrarCards(this.value)">
+            </div>
+            <div class="cards-grid" id="cards-container"></div>
+        </div>
+
+        <!-- TAB 2: CALENDÁRIO SEMANAL -->
+        <div id="tab-calendario" class="content">
+            <div class="calendar-nav">
+                <button class="btn btn-outline" onclick="mudarSemana(-1)"><i class="fa-solid fa-chevron-left"></i> Semana Anterior</button>
+                <div id="semana-rotulo" style="font-size:0.9rem; font-weight:600; text-transform:uppercase; letter-spacing:1px;"></div>
+                <div>
+                    <button class="btn btn-outline" onclick="irSemanaAtual()" style="margin-right:8px;">Hoje</button>
+                    <button class="btn btn-outline" onclick="mudarSemana(1)">Próxima Semana <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="week-grid" id="week-grid-container"></div>
+        </div>
+
+        <!-- TAB 3: CHAMADOS -->
+        <div id="tab-chamados" class="content">
+            <div class="action-bar">
+                <input type="text" class="search-input" placeholder="Filtrar demandas..." oninput="filtrarCards(this.value)">
+            </div>
+            <div class="cards-grid" id="cards-container-geral"></div>
+        </div>
+
+        <!-- TAB 4: SOLICITAÇÃO DE PASSAGENS -->
+        <div id="tab-passagens" class="content">
+            <div class="action-bar">
+                <h3 style="font-weight: 300; letter-spacing: 1px; font-size: 0.95rem; text-transform: uppercase;">Solicitações de Passagens (Aéreas / Rodoviárias)</h3>
+                <button class="btn btn-dark" onclick="openModalPassagem()"><i class="fa-solid fa-ticket"></i> Nova Passagem</button>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <input type="text" class="search-input" placeholder="Pesquisar por colaborador, origem ou destino..." oninput="filtrarPassagens(this.value)">
+            </div>
+
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Colaborador</th>
+                        <th>Origem ➔ Destino</th>
+                        <th>Data / Horário</th>
+                        <th>Observações</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl-passagens-body"></tbody>
+            </table>
+        </div>
+
+        <!-- TAB 5: SOLICITAÇÃO DE VIAGENS (VEXPENSES) -->
+        <div id="tab-vexpenses" class="content">
+            <div class="action-bar">
+                <h3 style="font-weight: 300; letter-spacing: 1px; font-size: 0.95rem; text-transform: uppercase;">Gestão de Viagens & Diárias (VExpenses)</h3>
+                <button class="btn btn-dark" onclick="openModalViagem()"><i class="fa-solid fa-plane-departure"></i> Nova Solicit. Viagem</button>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <input type="text" class="search-input" placeholder="Pesquisar por colaborador, cliente ou destino..." oninput="filtrarViagens(this.value)">
+            </div>
+
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Colaborador</th>
+                        <th>Cliente / Destino</th>
+                        <th>Período</th>
+                        <th>Dias / Diária</th>
+                        <th>Hotel</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl-viagens-body"></tbody>
+            </table>
+        </div>
+
+        <!-- TAB 6: GESTÃO DE EQUIPE (ADMIN) -->
+        <div id="tab-equipe" class="content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="font-weight: 300; letter-spacing: 1px; font-size: 0.95rem; text-transform: uppercase;">Cadastrar Novo Técnico ou Supervisor</h3>
+            </div>
+
+            <div class="modal-box" style="max-width: 100%; margin-bottom: 30px;">
+                <form id="form-usuario" onsubmit="cadastrarNovoUsuario(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>Nome Completo</label><input type="text" id="usr-nome" placeholder="Ex: Eduardo Ramos" required></div>
+                        <div class="form-group"><label>Função / Perfil</label>
+                            <select id="usr-perfil">
+                                <option value="tecnico">Técnico de Campo</option>
+                                <option value="supervisor">Supervisor</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Usuário de Login</label><input type="text" id="usr-login" placeholder="Ex: eduardo" required></div>
+                        <div class="form-group"><label>Senha de Acesso</label><input type="password" id="usr-senha" placeholder="••••••••" required></div>
+                    </div>
+                    <div style="margin-top:15px; text-align:right;">
+                        <button type="submit" class="btn btn-dark"><i class="fa-solid fa-user-plus"></i> Salvar Acesso</button>
+                    </div>
+                </form>
+            </div>
+
+            <h4 style="font-weight:400; text-transform:uppercase; font-size:0.85rem; letter-spacing:1px; margin-bottom:10px;">Equipe Cadastrada</h4>
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Função</th>
+                        <th>Login</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl-equipe-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL 1: NOVA ASSISTÊNCIA -->
+    <div class="modal" id="modal-assistencia">
+        <div class="modal-box">
+            <div class="modal-title">Abrir Chamado de Assistência</div>
+            <form id="form-assistencia" onsubmit="salvarAssistencia(event)">
+                <div class="form-grid">
+                    <div class="form-group"><label>Nº do Contrato</label><input type="text" id="ast-contrato" required></div>
+                    <div class="form-group"><label>Prioridade</label>
+                        <select id="ast-prioridade">
+                            <option value="Baixa">Baixa</option>
+                            <option value="Média">Média</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+                    </div>
+                    <div class="form-group full"><label>Nome do Cliente</label><input type="text" id="ast-cliente" required></div>
+                    <div class="form-group"><label>Telefone Contato</label><input type="text" id="ast-telefone"></div>
+                    <div class="form-group"><label>Cidade</label><input type="text" id="ast-cidade" required></div>
+                    <div class="form-group full"><label>Endereço Completo</label><input type="text" id="ast-endereco" required></div>
+                    <div class="form-group"><label>Data Prevista</label><input type="date" id="ast-data" required></div>
+                    <div class="form-group"><label>Horário</label><input type="time" id="ast-hora" required></div>
+                    <div class="form-group"><label>Técnico Responsável</label><select id="ast-tecnico"></select></div>
+                    <div class="form-group"><label>Supervisor Responsável</label><input type="text" id="ast-supervisor" required></div>
+                    <div class="form-group full"><label>Status Inicial</label>
+                        <select id="ast-status">
+                            <option value="Agendada">Agendada</option>
+                            <option value="Em andamento">Em andamento</option>
+                            <option value="Concluído Completo">Concluído Completo</option>
+                            <option value="Concluído Parcial">Concluído Parcial</option>
+                            <option value="Necessita Retorno">Necessita Retorno</option>
+                        </select>
+                    </div>
+                    <div class="form-group full"><label>Descrição da Solicitação</label><textarea id="ast-obs" rows="2"></textarea></div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-assistencia')">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Salvar Assistência</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: SOLICITAÇÃO DE PASSAGENS -->
+    <div class="modal" id="modal-passagem">
+        <div class="modal-box">
+            <div class="modal-title">Solicitar Passagem (Aérea / Rodoviária)</div>
+            <form id="form-passagem" onsubmit="salvarPassagem(event)">
+                <div class="form-grid">
+                    <div class="form-group full"><label>Nome do Técnico / Colaborador</label><select id="psg-colaborador"></select></div>
+                    <div class="form-group"><label>Origem (Cidade de Saída)</label><input type="text" id="psg-origem" placeholder="Ex: Cuiabá" required></div>
+                    <div class="form-group"><label>Destino (Cidade de Destino)</label><input type="text" id="psg-destino" placeholder="Ex: São Paulo" required></div>
+                    <div class="form-group"><label>Data da Viagem</label><input type="date" id="psg-data" required></div>
+                    <div class="form-group"><label>Horário Preferencial</label><input type="time" id="psg-horario"></div>
+                    <div class="form-group full"><label>Observações</label><textarea id="psg-obs" rows="2" placeholder="Ex: Bagagem despachada, preferência voo matutino"></textarea></div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-passagem')">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Enviar Solicitação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: SOLICITAÇÃO DE VIAGENS (VEXPENSES) -->
+    <div class="modal" id="modal-viagem">
+        <div class="modal-box">
+            <div class="modal-title">Solicitação de Viagem & Diárias (VExpenses)</div>
+            <form id="form-viagem" onsubmit="salvarViagem(event)">
+                <div class="form-grid">
+                    <div class="form-group"><label>Nome do Colaborador</label><select id="vgm-colaborador"></select></div>
+                    <div class="form-group"><label>Cliente Atendido</label><input type="text" id="vgm-cliente" placeholder="Ex: Residiência Daiane" required></div>
+                    <div class="form-group"><label>Cidade de Origem</label><input type="text" id="vgm-origem" required></div>
+                    <div class="form-group"><label>Cidade de Destino</label><input type="text" id="vgm-destino" required></div>
+                    <div class="form-group"><label>Data de Início</label><input type="date" id="vgm-data-inicio" onchange="calcularDiasViagem()" required></div>
+                    <div class="form-group"><label>Data de Retorno</label><input type="date" id="vgm-data-fim" onchange="calcularDiasViagem()" required></div>
+                    <div class="form-group"><label>Qtd. Dias (Automático)</label><input type="number" id="vgm-dias" readonly style="background:#eaeaef;"></div>
+                    <div class="form-group"><label>Valor Diária (R$)</label><input type="number" step="0.01" id="vgm-valor-diaria" placeholder="0.00" required></div>
+                    <div class="form-group"><label>Necessita Hospedagem?</label>
+                        <select id="vgm-hospedagem" onchange="toggleHotelDiv(this.value)">
+                            <option value="Não">Não</option>
+                            <option value="Sim">Sim</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="div-hotel-qtd" style="display:none;"><label>Qtd. Diárias de Hotel</label><input type="number" id="vgm-qtd-hotel" value="0"></div>
+                    <div class="form-group full"><label>Observações</label><textarea id="vgm-obs" rows="2" placeholder="Detalhes adicionais da viagem..."></textarea></div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modal-viagem')">Cancelar</button>
+                    <button type="submit" class="btn btn-dark">Salvar Viagem</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const usuPadrao = {
+            'admin': { nome: 'Administrador', perfil: 'admin', pass: '123' },
+            'carlos': { nome: 'Carlos', perfil: 'tecnico', tecnicoNome: 'Carlos', pass: '123' },
+            'eduardo': { nome: 'Eduardo', perfil: 'tecnico', tecnicoNome: 'Eduardo', pass: '123' }
+        };
+
+        let USUARIOS = JSON.parse(localStorage.getItem('bontempo_usuarios_v1')) || usuPadrao;
+        let usuarioLogado = JSON.parse(localStorage.getItem('bontempo_usuario_ativo')) || null;
+        let assistenciasDB = JSON.parse(localStorage.getItem('bontempo_assistencias_v6')) || [];
+        let passagensDB = JSON.parse(localStorage.getItem('bontempo_passagens_v1')) || [];
+        let viagensDB = JSON.parse(localStorage.getItem('bontempo_viagens_v1')) || [];
+        let dataInicioSemana = getSegundaFeira(new Date());
+
+        window.onload = function() {
+            if(!usuarioLogado) {
+                document.getElementById('login-overlay').style.display = 'flex';
+            } else {
+                iniciarSessao();
+            }
+        };
+
+        function fazerLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-user').value.toLowerCase().trim();
+            const p = document.getElementById('login-pass').value.trim();
+
+            if(USUARIOS[u] && USUARIOS[u].pass === p) {
+                usuarioLogado = USUARIOS[u];
+                localStorage.setItem('bontempo_usuario_ativo', JSON.stringify(usuarioLogado));
+                iniciarSessao();
+            } else {
+                alert("Usuário ou senha incorretos!");
+            }
+        }
+
+        function fazerLogout() {
+            localStorage.removeItem('bontempo_usuario_ativo');
+            location.reload();
+        }
+
+        function iniciarSessao() {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('logged-user-name').innerText = usuarioLogado.nome;
+            document.getElementById('logged-user-role').innerText = usuarioLogado.perfil.toUpperCase();
+
+            if(usuarioLogado.perfil === 'tecnico') {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            }
+
+            atualizarSelectsColaboradores();
+            renderGeral();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            const titles = { 
+                'painel': 'Gestão Integrada de Pós-Vendas', 
+                'calendario': 'Calendário Semanal de Atendimentos', 
+                'chamados': 'Todas as Assistências',
+                'passagens': 'Solicitações de Passagens Aéreas / Terrestres',
+                'vexpenses': 'Gestão de Viagens & Diárias (VExpenses)',
+                'equipe': 'Gestão de Equipe e Credenciais'
+            };
+            document.getElementById('page-title').innerText = titles[tabId];
+            renderGeral();
+        }
+
+        function atualizarSelectsColaboradores() {
+            const selects = ['ast-tecnico', 'psg-colaborador', 'vgm-colaborador'];
+            selects.forEach(id => {
+                const el = document.getElementById(id);
+                if(!el) return;
+                el.innerHTML = '';
+                Object.keys(USUARIOS).forEach(k => {
+                    el.innerHTML += `<option value="${USUARIOS[k].nome}">${USUARIOS[k].nome}</option>`;
+                });
+            });
+        }
+
+        /* ----- MÓDULO PASSAGENS ----- */
+        function openModalPassagem() { document.getElementById('modal-passagem').style.display = 'flex'; }
+        
+        function salvarPassagem(e) {
+            e.preventDefault();
+            const nova = {
+                id: Date.now(),
+                colaborador: document.getElementById('psg-colaborador').value,
+                origem: document.getElementById('psg-origem').value,
+                destino: document.getElementById('psg-destino').value,
+                data: document.getElementById('psg-data').value,
+                horario: document.getElementById('psg-horario').value || 'Não definido',
+                obs: document.getElementById('psg-obs').value,
+                status: 'Pendente'
+            };
+            passagensDB.push(nova);
+            localStorage.setItem('bontempo_passagens_v1', JSON.stringify(passagensDB));
+            closeModal('modal-passagem');
+            renderPassagens();
+        }
+
+        function renderPassagens(lista = passagensDB) {
+            const tbody = document.getElementById('tbl-passagens-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let dados = lista;
+            if(usuarioLogado.perfil === 'tecnico') {
+                dados = lista.filter(p => p.colaborador.toLowerCase() === usuarioLogado.nome.toLowerCase());
+            }
+
+            if(dados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-light);">Nenhuma solicitação de passagem.</td></tr>`;
+                return;
+            }
+
+            dados.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.colaborador}</strong></td>
+                        <td>${p.origem} ➔ <strong>${p.destino}</strong></td>
+                        <td>${formatarData(p.data)} às ${p.horario}</td>
+                        <td>${p.obs || '--'}</td>
+                        <td><span class="badge-status status-${getBadgeClassViagem(p.status)}">${p.status}</span></td>
+                        <td>
+                            ${usuarioLogado.perfil !== 'tecnico' ? `
+                                <select class="tech-status-select" onchange="alterarStatusPassagem(${p.id}, this.value)">
+                                    <option value="Pendente" ${p.status==='Pendente'?'selected':''}>Pendente</option>
+                                    <option value="Aprovada" ${p.status==='Aprovada'?'selected':''}>Aprovada</option>
+                                    <option value="Em Andamento" ${p.status==='Em Andamento'?'selected':''}>Em Andamento</option>
+                                    <option value="Finalizada" ${p.status==='Finalizada'?'selected':''}>Finalizada</option>
+                                </select>
+                            ` : '--'}
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function alterarStatusPassagem(id, status) {
+            let item = passagensDB.find(p => p.id === id);
+            if(item) { item.status = status; localStorage.setItem('bontempo_passagens_v1', JSON.stringify(passagensDB)); renderPassagens(); }
+        }
+
+        function filtrarPassagens(q) {
+            q = q.toLowerCase();
+            const res = passagensDB.filter(p => p.colaborador.toLowerCase().includes(q) || p.origem.toLowerCase().includes(q) || p.destino.toLowerCase().includes(q));
+            renderPassagens(res);
+        }
+
+        /* ----- MÓDULO VIAGENS (VEXPENSES) ----- */
+        function openModalViagem() { document.getElementById('modal-viagem').style.display = 'flex'; }
+        
+        function toggleHotelDiv(val) {
+            document.getElementById('div-hotel-qtd').style.display = val === 'Sim' ? 'flex' : 'none';
+        }
+
+        function calcularDiasViagem() {
+            const d1 = new Date(document.getElementById('vgm-data-inicio').value);
+            const d2 = new Date(document.getElementById('vgm-data-fim').value);
+            if(d1 && d2 && d2 >= d1) {
+                const diffTime = Math.abs(d2 - d1);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('vgm-dias').value = diffDays;
+            } else {
+                document.getElementById('vgm-dias').value = 0;
+            }
+        }
+
+        function salvarViagem(e) {
+            e.preventDefault();
+            const nova = {
+                id: Date.now(),
+                colaborador: document.getElementById('vgm-colaborador').value,
+                cliente: document.getElementById('vgm-cliente').value,
+                origem: document.getElementById('vgm-origem').value,
+                destino: document.getElementById('vgm-destino').value,
+                dataInicio: document.getElementById('vgm-data-inicio').value,
+                dataFim: document.getElementById('vgm-data-fim').value,
+                dias: document.getElementById('vgm-dias').value,
+                valorDiaria: document.getElementById('vgm-valor-diaria').value,
+                hospedagem: document.getElementById('vgm-hospedagem').value,
+                qtdHotel: document.getElementById('vgm-qtd-hotel').value || 0,
+                obs: document.getElementById('vgm-obs').value,
+                status: 'Pendente'
+            };
+            viagensDB.push(nova);
+            localStorage.setItem('bontempo_viagens_v1', JSON.stringify(viagensDB));
+            closeModal('modal-viagem');
+            renderViagens();
+        }
+
+        function renderViagens(lista = viagensDB) {
+            const tbody = document.getElementById('tbl-viagens-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            let dados = lista;
+            if(usuarioLogado.perfil === 'tecnico') {
+                dados = lista.filter(v => v.colaborador.toLowerCase() === usuarioLogado.nome.toLowerCase());
+            }
+
+            if(dados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-light);">Nenhuma viagem registrada.</td></tr>`;
+                return;
+            }
+
+            dados.forEach(v => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${v.colaborador}</strong></td>
+                        <td>${v.cliente}<br><small style="color:var(--text-muted);">${v.origem} ➔ ${v.destino}</small></td>
+                        <td>${formatarData(v.dataInicio)} até ${formatarData(v.dataFim)}</td>
+                        <td>${v.dias} dia(s)<br><small>R$ ${v.valorDiaria}/dia</small></td>
+                        <td>${v.hospedagem === 'Sim' ? `${v.qtdHotel} diária(s)` : 'Não'}</td>
+                        <td><span class="badge-status status-${getBadgeClassViagem(v.status)}">${v.status}</span></td>
+                        <td>
+                            ${usuarioLogado.perfil !== 'tecnico' ? `
+                                <select class="tech-status-select" onchange="alterarStatusViagem(${v.id}, this.value)">
+                                    <option value="Pendente" ${v.status==='Pendente'?'selected':''}>Pendente</option>
+                                    <option value="Aprovada" ${v.status==='Aprovada'?'selected':''}>Aprovada</option>
+                                    <option value="Em Andamento" ${v.status==='Em Andamento'?'selected':''}>Em Andamento</option>
+                                    <option value="Finalizada" ${v.status==='Finalizada'?'selected':''}>Finalizada</option>
+                                </select>
+                            ` : '--'}
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function alterarStatusViagem(id, status) {
+            let item = viagensDB.find(v => v.id === id);
+            if(item) { item.status = status; localStorage.setItem('bontempo_viagens_v1', JSON.stringify(viagensDB)); renderViagens(); }
+        }
+
+        function filtrarViagens(q) {
+            q = q.toLowerCase();
+            const res = viagensDB.filter(v => v.colaborador.toLowerCase().includes(q) || v.cliente.toLowerCase().includes(q) || v.destino.toLowerCase().includes(q));
+            renderViagens(res);
+        }
+
+        function getBadgeClassViagem(status) {
+            if(status === 'Aprovada' || status === 'Em Andamento') return 'aprovada';
+            if(status === 'Finalizada') return 'finalizada';
+            return 'pendente';
+        }
+
+        /* RENDERS GERAIS */
+        function renderGeral() {
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('kpi-hoje').innerText = assistenciasDB.filter(a => a.data === hoje).length;
+            document.getElementById('kpi-andamento').innerText = assistenciasDB.filter(a => a.status === 'Em andamento').length;
+            document.getElementById('kpi-passagens').innerText = passagensDB.filter(p => p.status === 'Pendente').length;
+            document.getElementById('kpi-viagens').innerText = viagensDB.length;
+
+            renderCards('cards-container', assistenciasDB);
+            renderCards('cards-container-geral', assistenciasDB);
+            renderPassagens();
+            renderViagens();
+            if(usuarioLogado && usuarioLogado.perfil === 'admin') {
+                renderCalendarioSemanal();
+                renderTabelaEquipe();
+            }
+        }
+
+        function renderCards(containerId, lista) {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            container.innerHTML = '';
+            if(lista.length === 0) {
+                container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px; color:var(--text-light);">Nenhuma assistência cadastrada.</div>`;
+                return;
+            }
+            lista.forEach(a => {
+                container.innerHTML += `
+                    <div class="assist-card">
+                        <div>
+                            <div class="assist-header">
+                                <div>
+                                    <div class="client-name">${a.cliente}</div>
+                                    <div class="contract-no">Contrato #${a.contrato} • ${a.cidade}</div>
+                                </div>
+                                <span class="badge-status status-${getBadgeClass(a.status)}">${a.status}</span>
+                            </div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); display:flex; flex-direction:column; gap:4px;">
+                                <div><i class="fa-regular fa-clock"></i> ${formatarData(a.data)} às ${a.hora}</div>
+                                <div><i class="fa-solid fa-location-dot"></i> Endereço: ${a.endereco}</div>
+                                <div><i class="fa-regular fa-user"></i> Técnico: <strong>${a.tecnico}</strong></div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderCalendarioSemanal() {
+            const container = document.getElementById('week-grid-container');
+            if(!container) return;
+            container.innerHTML = '';
+            const diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            let dataInicio = new Date(dataInicioSemana);
+            let dataFim = new Date(dataInicio);
+            dataFim.setDate(dataFim.getDate() + 5);
+            document.getElementById('semana-rotulo').innerText = `Semana: ${formatarDataShort(dataInicio)} até ${formatarDataShort(dataFim)}`;
+
+            for(let i = 0; i < 6; i++) {
+                let dataDia = new Date(dataInicio);
+                dataDia.setDate(dataDia.getDate() + i);
+                let dataStr = dataDia.toISOString().split('T')[0];
+                let chamados = assistenciasDB.filter(a => a.data === dataStr);
+
+                let htmlContent = chamados.length > 0 ? chamados.map(c => `
+                    <div class="event-card status-${getBadgeClass(c.status)}">
+                        <div class="event-time">${c.hora} - ${c.tecnico}</div>
+                        <div class="event-client">${c.cliente}</div>
+                    </div>`).join('') : `<div class="slot-free">Livre</div>`;
+
+                container.innerHTML += `
+                    <div class="day-column">
+                        <div class="day-header"><div class="day-name">${diasSemana[i]}</div><div class="day-number">${dataDia.getDate()}</div></div>
+                        <div class="time-slot-block">${htmlContent}</div>
+                    </div>`;
+            }
+        }
+
+        function cadastrarNovoUsuario(e) {
+            e.preventDefault();
+            const nome = document.getElementById('usr-nome').value;
+            const perfil = document.getElementById('usr-perfil').value;
+            const login = document.getElementById('usr-login').value.toLowerCase().trim();
+            const pass = document.getElementById('usr-senha').value.trim();
+
+            USUARIOS[login] = { nome, perfil, tecnicoNome: nome, pass };
+            localStorage.setItem('bontempo_usuarios_v1', JSON.stringify(USUARIOS));
+            alert("Usuário salvo!");
+            document.getElementById('form-usuario').reset();
+            atualizarSelectsColaboradores();
+            renderTabelaEquipe();
+        }
+
+        function renderTabelaEquipe() {
+            const tbody = document.getElementById('tbl-equipe-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            Object.keys(USUARIOS).forEach(k => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${USUARIOS[k].nome}</strong></td>
+                        <td><span style="text-transform:uppercase; font-size:0.75rem;">${USUARIOS[k].perfil}</span></td>
+                        <td><code>${k}</code></td>
+                        <td>${k !== 'admin' ? `<button onclick="deletarUsuario('${k}')" style="background:none; border:none; color:#ef4444; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>` : ''}</td>
+                    </tr>`;
+            });
+        }
+
+        function deletarUsuario(k) {
+            if(confirm("Remover usuário?")) { delete USUARIOS[k]; localStorage.setItem('bontempo_usuarios_v1', JSON.stringify(USUARIOS)); renderTabelaEquipe(); }
+        }
+
+        function getSegundaFeira(d) { let day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(d.setDate(diff)); }
+        function mudarSemana(o) { dataInicioSemana.setDate(dataInicioSemana.getDate() + (o * 7)); renderCalendarioSemanal(); }
+        function irSemanaAtual() { dataInicioSemana = getSegundaFeira(new Date()); renderCalendarioSemanal(); }
+        function openModal() { document.getElementById('modal-assistencia').style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function getBadgeClass(status) {
+            if(status === 'Em andamento') return 'andamento';
+            if(status === 'Concluído Completo') return 'concluido-completo';
+            if(status === 'Concluído Parcial') return 'concluido-parcial';
+            if(status === 'Necessita Retorno') return 'retorno';
+            return 'agendada';
+        }
+
+        function formatarData(d) { if(!d) return ''; const p = d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+        function formatarDataShort(d) { return `${d.getDate()}/${d.getMonth()+1}`; }
+    </script>
+</body>
+</html>
